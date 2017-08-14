@@ -20,8 +20,8 @@ export const redirectOrigin = '';
 
 ```sh
 npm install # or yarn
-npm run install-mongo
 ```
+And don't forget to run mongodb
 
 # To run
 

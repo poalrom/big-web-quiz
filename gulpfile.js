@@ -72,10 +72,10 @@ const paths = {
 };
 
 const serverProcess = respawn(['node', `${paths.serverScripts.dest}/index.js`]);
-const databaseProcess = respawn(['docker', 'start', '-a', 'bwq-mongo']);
+// const databaseProcess = respawn(['docker', 'start', '-a', 'bwq-mongo']);
 
 // hook up the logging
-for (const process of [serverProcess, databaseProcess]) {
+for (const process of [serverProcess]) {
   process.on('stdout', data => gutil.log(data.toString('utf-8')));
   process.on('stderr', data => gutil.log(data.toString('utf-8')));
   process.on('warn', data => gutil.log(data.toString('utf-8')));
@@ -293,7 +293,7 @@ gulp.task('build', gulp.series(
 gulp.task('serve', gulp.series(
   mainBuild,
   gulp.parallel(
-    databaseServer,
+    // databaseServer,
     // Wait for database to start up
     // TODO: I should find a better way to do this
     gulp.series(waitTask(1500), server),

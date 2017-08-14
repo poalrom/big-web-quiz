@@ -196,7 +196,8 @@ export function updateUser(req, res) {
 }
 
 const adminIds = [
-  '116237864387312784020' // Jake
+  '116237864387312784020', // Jake,
+  '106226344171608747626' // Aleksandra Shinkevich
 ];
 
 export function requiresAdminHtml(req, res, next) {
