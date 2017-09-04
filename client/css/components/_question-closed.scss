@@ -55,16 +55,15 @@
   &__front, &__back {
     width: 450px;
     height: 450px;
-    background: radial-gradient(circle at 80% 80%, #F71C98 40%, #00BFA3 100%);;
+    background: $primary-color;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 50%;
     position: absolute;
     backface-visibility: hidden;
     left: calc(50% - 225px);
     top: calc(50% - 225px);
-    color: darken(#00BFA3, 10%);
+    color: darken(#000, 10%);
     font-size: 52px;
   }
 
@@ -72,9 +71,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 50%;
-    width: 96%;
-    height: 96%;
+    width: 90%;
+    height: 90%;
     text-align: center;
     line-height: 1.2;
     background: #FFF;
@@ -83,7 +81,7 @@
 
   &__back {
     transform: rotateY(180deg);
-    background: radial-gradient(circle at 80% 80%, #F71C98 40%, #00BFA3 100%);
+    background: $primary-color;
   }
 
   &__shadow2px,

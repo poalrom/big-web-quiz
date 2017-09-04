@@ -343,11 +343,6 @@ class App extends BoundComponent {
             <QuestionUpdate onQuestionSaved={this.onQuestionSaved}/>
             :
             <div class="admin__questions-add">
-              {showingEndScreen ?
-                <button onClick={this.onHideEndScreenClick}>Hide End Screen</button>
-                :
-                <button onClick={this.onShowEndScreenClick}>Show End Screen</button>
-              }
 
               {naiveLoginAllowed ?
                 <button onClick={this.onDisallowNaiveLoginClick}>Disable naive login</button>
@@ -358,16 +353,6 @@ class App extends BoundComponent {
                 <button onClick={this.onHideBlackoutClick}>Hide blackout</button>
                 :
                 <button onClick={this.onShowBlackoutClick}>Show blackout</button>
-              }
-              {showingVideo == 'intro' ?
-                <button onClick={() => this.showVideo('')}>Hide intro</button>
-                :
-                <button onClick={() => this.showVideo('intro')}>Show intro</button>
-              }
-              {showingVideo == 'prize' ?
-                <button onClick={() => this.showVideo('')}>Hide prize</button>
-                :
-                <button onClick={() => this.showVideo('prize')}>Show prize</button>
               }
               <button onClick={this.onAddQuestionClick}>Add question</button>
             </div>
