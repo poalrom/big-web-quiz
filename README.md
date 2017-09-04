@@ -1,4 +1,8 @@
-# Prerequisites
+The repo is a [fork](https://github.com/CSS-Minsk-JS/big-web-quiz) from [Big Web Quiz](https://github.com/jakearchibald/big-web-quiz)
+
+# Development && Deploy
+
+## Prerequisites
 
 * Node >= 6.7.0
 * Docker >= 1.12.1
@@ -16,20 +20,20 @@ export const redirectOrigin = '';
 
 …but with the correct values.
 
-# To install
+## To install
 
 ```sh
 npm install # or yarn
 ```
 And don't forget to run mongodb
 
-# To run
+## To run
 
 ```sh
 npm run serve
 ```
 
-# Dokku setup
+## Dokku setup
 
 1. Install Dokku
 1. Use vhosts, then:

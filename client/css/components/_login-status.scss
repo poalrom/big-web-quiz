@@ -26,9 +26,8 @@
   display: block;
 
   & .avatar {
-    border-radius: 100%;
     display: block;
-    border: 4px solid #FFF;
+    border: 4px solid $primary-color;
   }
 }
 

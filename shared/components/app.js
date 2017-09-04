@@ -95,7 +95,7 @@ export default class App extends BoundComponent {
     return (
       <div class="app">
         <header class="page-header">
-          <div class="title">The Big Web Quiz</div>
+          <div class="title">The Big Web Quiz. CSS-Minsk-JS Edition</div>
           <LoginStatus
             server={server}
             user={user}
@@ -135,7 +135,7 @@ export default class App extends BoundComponent {
             )
           }
         </div>
-        <a class="privacy" href="https://www.google.com/policies">Google Privacy Policy and Terms of Service</a>
+        <a class="privacy" href="https://github.com/CSS-Minsk-JS/big-web-quiz" target="_blank">Forked from The Big Web Quiz by Google</a>
         {server &&
           <div class="img-preloads">
             <img src="/static/images/ic_check_circle_black_24px.svg" alt=""/>
