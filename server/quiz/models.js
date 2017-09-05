@@ -37,7 +37,12 @@ const questionSchema = mongoose.Schema({
   answers: [{
     text: {type: String, required: true},
     correct: Boolean
-  }]
+  }],
+  // Type of question to split to a few tracks
+  track: {
+    type: String,
+    default: 'all'
+  }
 });
 
 export const Question = mongoose.model('Question', questionSchema);
@@ -135,6 +140,7 @@ export class Quiz {
         codeType: this._activeQuestion.codeType,
         multiple: this._activeQuestion.multiple,
         scored: this._activeQuestion.scored,
+        track: this._activeQuestion.track,
         // Don't want to send which answers are correct all the time,
         // see `correctAnswers` below
         answers: this._activeQuestion.answers.map(answer => ({text: answer.text}))

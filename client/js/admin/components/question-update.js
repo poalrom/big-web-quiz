@@ -36,10 +36,11 @@ export default class QuestionUpdate extends BoundComponent {
       answers = [createAnswerObject(), createAnswerObject()],
       multiple = false,
       scored = true,
-      priority = false
+      priority = false,
+      track = 'all'
     } = props;
 
-    this.state = {title, text, code, codeType, answers, multiple, scored, priority};
+    this.state = {title, text, code, codeType, answers, multiple, scored, priority, track};
   }
   async onRemoveQuestion(event) {
     event.preventDefault();
@@ -67,7 +68,7 @@ export default class QuestionUpdate extends BoundComponent {
   }
   async onSubmit(event) {
     event.preventDefault();
-    const {title, text, code, codeType, answers, multiple, scored, priority} = this.state;
+    const {title, text, code, codeType, answers, multiple, scored, priority, track} = this.state;
     const id = this.props.id;
 
     try {
@@ -77,7 +78,7 @@ export default class QuestionUpdate extends BoundComponent {
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
           title, text, code, codeType,
-          answers, multiple, scored, id, priority
+          answers, multiple, scored, id, priority, track
         })
       });
 
@@ -142,6 +143,17 @@ export default class QuestionUpdate extends BoundComponent {
 
         <tr>
           <th>Priority:</th><td><input type="checkbox" checked={this.state.priority} onChange={this.linkState('priority')}/></td>
+        </tr>
+
+        <tr>
+          <th>Track:</th>
+          <td>
+            <select value={this.state.track} onChange={this.linkState('track')}>
+              <option value="all">All</option>
+              <option value="js">JavaScript</option>
+              <option value="css">CSS</option>
+            </select>
+          </td>
         </tr>
 
         {answers.map((answer, i) =>

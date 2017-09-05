@@ -67,6 +67,7 @@ function upsertQuestion(data) {
     multiple: !!data.multiple,
     scored: !!data.scored,
     priority: !!data.priority,
+    track: data.track,
     answers: data.answers
   };
 
