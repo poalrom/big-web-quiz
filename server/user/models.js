@@ -18,11 +18,10 @@ import mongoose from '../mongoose-db';
 const ObjectId = mongoose.Schema.Types.ObjectId;
 
 export const ADMIN_IDS = [
-  '116237864387312784020', // Jake
-  '102813120987797040209', // Paul Lewis
-  '104714371990859295637', // thebigwebquiz
-  '111820256548303113275', // surma,
-  '106226344171608747626'  // ALeksandra Shinkevich
+  '106226344171608747626',  // ALeksandra Shinkevich
+  '101241719050029815932', // Pavel Lautsevich
+  '107275858358244966388', // Anna Selezneva
+  '102588369478580002197' // James Akwuh
 ];
 
 let allowNaiveLogin = false;
