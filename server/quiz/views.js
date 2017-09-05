@@ -43,6 +43,7 @@ export function adminStateJson(req, res) {
       showingLeaderboard: quiz.showingLeaderboard,
       showingVideo: quiz.showingVideo,
       showingBlackout: quiz.showingBlackout,
+      showingSplitTracks: quiz.showingSplitTracks,
       showingEndScreen: quiz.showingEndScreen,
       naiveLoginAllowed: naiveLoginAllowed()
     });
@@ -274,6 +275,24 @@ export function hideBlackoutJson(req, res) {
   presentationListeners.broadcast(
     Object.assign({showBlackout: false}, quiz.getState())
   );
+  adminStateJson(req, res);
+}
+
+export function showSplitTracksJson(req, res) {
+  quiz.showingSplitTracks = true;
+  presentationListeners.broadcast(
+    Object.assign({showingSplitTracks: true}, quiz.getState())
+  );
+  longPollers.broadcast(quiz.getState());
+  adminStateJson(req, res);
+}
+
+export function hideSplitTracksJson(req, res) {
+  quiz.showingSplitTracks = false;
+  presentationListeners.broadcast(
+    Object.assign({showingSplitTracks: false}, quiz.getState())
+  );
+  longPollers.broadcast(quiz.getState());
   adminStateJson(req, res);
 }
 

@@ -32,6 +32,7 @@ class App extends BoundComponent {
       showingLeaderboard: props.showingLeaderboard,
       showingVideo: props.showingVideo,
       showingBlackout: props.showingBlackout,
+      showingSplitTracks: props.showingSplitTracks,
       naiveLoginAllowed: props.naiveLoginAllowed,
       showingEndScreen: props.showingEndScreen,
       addingQuestion: false,
@@ -196,6 +197,42 @@ class App extends BoundComponent {
       throw err;
     }
   }
+  async onShowSplitTracks() {
+    try {
+      const response = await fetch(`/admin/show-split-tracks.json`, {
+        method: 'POST',
+        credentials: 'include'
+      });
+
+      const data = await response.json();
+
+      if (data.err) throw Error(data.err);
+
+      this.setState(data);
+    }
+    catch (err) {
+      // TODO
+      throw err;
+    }
+  }
+  async onHidesSplitTracks() {
+    try {
+      const response = await fetch(`/admin/hide-split-tracks.json`, {
+        method: 'POST',
+        credentials: 'include'
+      });
+
+      const data = await response.json();
+
+      if (data.err) throw Error(data.err);
+
+      this.setState(data);
+    }
+    catch (err) {
+      // TODO
+      throw err;
+    }
+  }
   async onAllowNaiveLoginClick() {
     const response = await fetch(`/admin/allow-naive-login.json`, {
       method: 'POST',
@@ -310,7 +347,7 @@ class App extends BoundComponent {
 
   render(props, {
     questions, addingQuestion, editingQuestions, showingLeaderboard,
-    outputValue, view, showingVideo, showingBlackout, naiveLoginAllowed,
+    outputValue, view, showingVideo, showingBlackout, showingSplitTracks, naiveLoginAllowed,
     showingEndScreen
   }) {
     return <div>
@@ -353,6 +390,11 @@ class App extends BoundComponent {
                 <button onClick={this.onHideBlackoutClick}>Hide blackout</button>
                 :
                 <button onClick={this.onShowBlackoutClick}>Show blackout</button>
+              }
+              {showingSplitTracks ?
+                <button onClick={this.onHidesSplitTracks}>Merge tracks</button>
+                :
+                <button onClick={this.onShowSplitTracks}>Split tracks</button>
               }
               <button onClick={this.onAddQuestionClick}>Add question</button>
             </div>
@@ -498,6 +540,7 @@ fetch('/admin/initial-state.json', {
     showingLeaderboard={data.showingLeaderboard}
     showingVideo={data.showingVideo}
     showingBlackout={data.showingBlackout}
+    showingSplitTracks={data.showingSplitTracks}
     naiveLoginAllowed={data.naiveLoginAllowed}
     showingEndScreen={data.showingEndScreen} />, main);
 });

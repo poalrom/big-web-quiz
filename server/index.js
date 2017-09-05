@@ -43,7 +43,8 @@ import {
   deactivateQuestionJson, presentationListen,
   showLeaderboardJson, hideLeaderboardJson,
   liveResultsQuestionJson, showVideoJson,
-  showBlackoutJson, hideBlackoutJson, setEndScreen
+  showBlackoutJson, hideBlackoutJson, setEndScreen,
+  showSplitTracksJson, hideSplitTracksJson
 } from './quiz/views';
 import {longPoll} from './long-pollers/views';
 import mongoose from './mongoose-db';
@@ -150,6 +151,8 @@ adminRouter.post('/admin/show-leaderboard.json', showLeaderboardJson);
 adminRouter.post('/admin/hide-leaderboard.json', hideLeaderboardJson);
 adminRouter.post('/admin/show-blackout.json', showBlackoutJson);
 adminRouter.post('/admin/hide-blackout.json', hideBlackoutJson);
+adminRouter.post('/admin/show-split-tracks.json', showSplitTracksJson);
+adminRouter.post('/admin/hide-split-tracks.json', hideSplitTracksJson);
 adminRouter.post('/admin/allow-naive-login.json', allowNaiveLogin);
 adminRouter.post('/admin/disallow-naive-login.json', disallowNaiveLogin);
 adminRouter.post('/admin/show-video.json', showVideoJson);

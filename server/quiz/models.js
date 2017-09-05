@@ -57,6 +57,7 @@ export class Quiz {
     this._cachedUserAnswers = {};
     this.showingVideo = '';
     this.showingBlackout = false;
+    this.showingSplitTracks = false;
     this.showingEndScreen = false;
   }
   get activeQuestion() {
@@ -146,6 +147,7 @@ export class Quiz {
         answers: this._activeQuestion.answers.map(answer => ({text: answer.text}))
       },
       showEndScreen: this.showingEndScreen,
+      showingSplitTracks: this.showingSplitTracks,
       showLiveResults: this._showingLiveResults,
       questionClosed: !this._acceptingAnswers,
       // array of indexes for the correct answers
