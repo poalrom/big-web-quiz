@@ -49,54 +49,62 @@ export const Question = mongoose.model('Question', questionSchema);
 
 export class Quiz {
   constructor() {
-    this._activeQuestion = null;
-    this._acceptingAnswers = false;
-    this._revealingAnswers = false;
+    this._activeQuestions = {
+      all: null,
+      css: null,
+      js: null
+    };
     this._showingLeaderboard = false;
-    this._showingLiveResults = false;
     this._cachedUserAnswers = {};
     this.showingVideo = '';
     this.showingBlackout = false;
-    this.showingSplitTracks = false;
+    this.showingSplitTracks = true;
     this.showingEndScreen = false;
   }
-  get activeQuestion() {
-    return this._activeQuestion;
+  get activeQuestions() {
+    return this._activeQuestions;
   }
-  get acceptingAnswers() {
-    return this._acceptingAnswers;
+  getActiveQuestion(track = "all") {
+    return this._activeQuestions[track] && this._activeQuestions[track].question;
   }
-  get revealingAnswers() {
-    return this._revealingAnswers;
+  getAcceptingAnswers(track = "all") {
+    return this._activeQuestions[track] && this._activeQuestions[track].stage == 'acceptingAnswers';
+  }
+  getRevealingAnswers(track = "all") {
+    return this._activeQuestions[track] && this._activeQuestions[track].stage == 'revealingAnswers';
+  }
+  getShowingLiveResults(track = "all") {
+    return this._activeQuestions[track] && this._activeQuestions[track].stage == 'showingLiveResults';
   }
   get showingLeaderboard() {
     return this._showingLeaderboard;
   }
-  get showingLiveResults() {
-    return this._showingLiveResults;
-  }
   setQuestion(question) {
-    this._activeQuestion = question;
-    this._acceptingAnswers = true;
-    this._revealingAnswers = false;
-    this._showingLiveResults = false;
+    if(!this._activeQuestions[question.track]) this._activeQuestions[question.track] = {};
+    this._activeQuestions[question.track].question = question;
+    this._activeQuestions[question.track].stage = 'acceptingAnswers';
     this._cachedUserAnswers = {};
     this.showingVideo = '';
   }
-  showLiveResults() {
-    this._showingLiveResults = true;
+  showLiveResults(track = "all") {
+    if (this._activeQuestions[question.track]) {      
+      this._activeQuestions[question.track].stage = 'showLiveResults';
+    }
     this.showingVideo = '';
   }
-  cacheAnswers(userId, answers) {
-    this._cachedUserAnswers[userId] = answers;
+  cacheAnswers(userId, answers, track = "all") {
+    if (!this._cachedUserAnswers[userId]) {
+      this._cachedUserAnswers[userId] = {};
+    }
+    this._cachedUserAnswers[userId][track] = answers;
   }
-  getAverages() {
+  getAverages(track = "all") {
     let total = 0;
-    const occurrences = Array(this._activeQuestion.answers.length).fill(0);
+    const occurrences = Array(this._activeQuestions[track].question.answers.length).fill(0);
 
     for (const userId of Object.keys(this._cachedUserAnswers)) {
       total++;
-      const choices = this._cachedUserAnswers[userId];
+      const choices = this._cachedUserAnswers[userId][track];
       for (const choice of choices) {
         occurrences[choice]++;
       }
@@ -104,25 +112,18 @@ export class Quiz {
 
     return occurrences.map(n => n/total);
   }
-  closeForAnswers() {
-    if (!this._activeQuestion) throw Error("No active question");
-    this._acceptingAnswers = false;
-    this._revealingAnswers = false;
-    this._showingLiveResults = true;
+  closeForAnswers(track = "all") {
+    if (!this._activeQuestions || !this._activeQuestions[track]) throw Error("No active question");
+    this._activeQuestions[question.track].stage = 'showingLiveResults';
     this.showingVideo = '';
   }
-  revealAnswers() {
-    if (!this._activeQuestion) throw Error("No active question");
-    this._acceptingAnswers = false;
-    this._revealingAnswers = true;
-    this._showingLiveResults = true;
+  revealAnswers(track = "all") {
+    if (!this._activeQuestions || !this._activeQuestions[track]) throw Error("No active question");
+    this._activeQuestions[question.track].stage = 'revealingAnswers';
     this.showingVideo = '';
   }
-  unsetQuestion() {
-    this._activeQuestion = null;
-    this._acceptingAnswers = false;
-    this._revealingAnswers = false;
-    this._showingLiveResults = false;
+  unsetQuestion(track = "all") {
+    this._activeQuestions[track] = null;
   }
   showLeaderboard() {
     this._showingLeaderboard = true;
@@ -132,32 +133,42 @@ export class Quiz {
     this._showingLeaderboard = false;
   }
   getState() {
-    return {
-      question: this._activeQuestion && {
-        id: this._activeQuestion._id,
-        title: this._activeQuestion.title,
-        text: this._activeQuestion.text,
-        code: this._activeQuestion.code,
-        codeType: this._activeQuestion.codeType,
-        multiple: this._activeQuestion.multiple,
-        scored: this._activeQuestion.scored,
-        track: this._activeQuestion.track,
-        // Don't want to send which answers are correct all the time,
-        // see `correctAnswers` below
-        answers: this._activeQuestion.answers.map(answer => ({text: answer.text}))
-      },
-      showEndScreen: this.showingEndScreen,
-      showingSplitTracks: this.showingSplitTracks,
-      showLiveResults: this._showingLiveResults,
-      questionClosed: !this._acceptingAnswers,
-      // array of indexes for the correct answers
-      correctAnswers: this._revealingAnswers &&
-        this._activeQuestion.answers.reduce((arr, answer, i) => {
+    const tracks = ['all', 'css', 'js'];
+    const questions = tracks.map(track => this._activeQuestions[track] && {
+      id: this._activeQuestions[track]._id,
+      title: this._activeQuestions[track].title,
+      text: this._activeQuestions[track].text,
+      code: this._activeQuestions[track].code,
+      codeType: this._activeQuestions[track].codeType,
+      multiple: this._activeQuestions[track].multiple,
+      scored: this._activeQuestions[track].scored,
+      track: this._activeQuestions[track].track,
+      // Don't want to send which answers are correct all the time,
+      // see `correctAnswers` below
+      answers: this._activeQuestions[track].question.answers.map(answer => ({text: answer.text}))
+    });
+    const correctAnswers = tracks.map(track=> this._activeQuestions[track] && this._activeQuestions[track].question && this._activeQuestions[track].stage == 'revealingAnswers' &&
+        this._activeQuestions[track].question.answers.reduce((arr, answer, i) => {
           if (answer.correct) {
             arr.push(i);
           }
           return arr;
         }, [])
+    );
+
+    return {
+      activeQuestions: {
+        all: questions[0],
+        css: questions[1],
+        js: questions[2]
+      },
+      showingSplitTracks: this.showingSplitTracks,
+      // array of indexes for the correct answers
+      correctAnswers: {
+        all: correctAnswers[0],
+        css: correctAnswers[1],
+        js: correctAnswers[2]
+      }
     }
   }
 }

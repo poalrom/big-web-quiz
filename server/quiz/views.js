@@ -31,11 +31,13 @@ export function adminStateJson(req, res) {
   Question.find().sort({ priority: -1 }).then(questions => {
     questions = questions.map(q => q.toObject());
     for (const question of questions) {
-      question.active = quiz.activeQuestion && quiz.activeQuestion._id.equals(question._id);
-      if (question.active) {
-        question.closed = !quiz.acceptingAnswers;
-        question.revealingAnswers = quiz.revealingAnswers;
-        question.showingLiveResults = quiz.showingLiveResults;
+      if (quiz.activeQuestions[question.track] && quiz.activeQuestions[question.track].question) {
+        question.active = quiz.activeQuestions[question.track].question._id.equals(question._id);
+        if (question.active) {
+          question.closed = quiz.activeQuestions[question.track].state == 'acceptingAnswers';
+          question.revealingAnswers = quiz.activeQuestions[question.track].state == 'revealingAnswers';
+          question.showingLiveResults = quiz.activeQuestions[question.track].state == 'showingLiveResults';
+        }
       }
     }
     res.json({

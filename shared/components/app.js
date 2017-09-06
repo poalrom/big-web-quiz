@@ -109,13 +109,15 @@ export default class App extends BoundComponent {
   }
   render({server}, {user, question, questionClosed, correctAnswers, answersSubmitted, naiveLoginAllowed, showEndScreen, showingSplitTracks}) {
     // Question: OPEN
-    const shouldShowQuestion = (question && !server) ||
+    const shouldShowQuestion = ((question && !server) ||
+    
+          // Question: CLOSED
+          (question && questionClosed) ||
+    
+          // Question: REVEALED
+          (question && questionClosed && correctAnswers && correctAnswers.length)) && 
 
-      // Question: CLOSED
-      (question && questionClosed) ||
-
-      // Question: REVEALED
-      (question && questionClosed && correctAnswers && correctAnswers.length);
+    (question.track == 'all' || (question.track == user.track && showingSplitTracks));
 
     return (
       <div class="app">

@@ -46,16 +46,18 @@ function getInitialState(req) {
     Object.assign(initialState, quiz.getState());
   }
 
-  if (quiz.activeQuestion && req.user) {
-    const userAnswers = req.user.answers
-      .find(a => a.questionId.equals(quiz.activeQuestion._id));
-    
-    if (userAnswers) {
-      initialState.answersSubmitted = quiz.activeQuestion.answers
-        .map((_, i) => userAnswers.choices.includes(i));
-    }
-    else {
-      initialState.answersSubmitted = [];
+  if (quiz.activeQuestions && req.user) {
+    const tracks = ['all', 'css', 'js'];
+    for(let i=0; i< tracks.length; i++ ){
+      let track = tracks[i];
+      let userAnswers = {};
+      if (quiz.activeQuestions[track]){
+        userAnswers[track] = req.user.answers.find(a => a.questionId.equals(quiz.activeQuestions[track].question._id));
+        if (userAnswers[track]) {
+          if(!initialState.answersSubmitted) initialState.answersSubmitted = {};
+            initialState.answersSubmitted[track] = quiz.activeQuestions[track].question.answers.map((_, i) => userAnswers[track].choices.includes(i));
+        }
+      }
     }
   }
 
