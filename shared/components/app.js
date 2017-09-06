@@ -19,12 +19,15 @@ import {h, render} from 'preact';
 import {Login, Logout} from './user';
 import BoundComponent from './bound-component';
 import Intro from './intro';
+import TracksTabs from './tracks-tabs';
 import QuestionWaiting from './question-waiting';
 import LoginStatus from './login-status';
 import Question from './question';
 import Transition from './transition';
 import EndScreen from './end-screen';
 import LongPoll from '../long-poll';
+
+const UPDATE_USER_TRACK_ACTION = '/update-me.json';
 
 export default class App extends BoundComponent {
   constructor(props) {
@@ -43,6 +46,7 @@ export default class App extends BoundComponent {
     //   questionClosed: Boolean,
     //   naiveLoginAllowed: Boolean,
     //   showEndScreen: Boolean,
+    //   showingSplitTracks: Boolean,
     //   correctAnswers: [Number],
     //   answersSubmitted: [Number], answers the user submitted for the question
     // }
@@ -82,7 +86,28 @@ export default class App extends BoundComponent {
       user: null
     });
   }
-  render({server}, {user, question, questionClosed, correctAnswers, answersSubmitted, naiveLoginAllowed, showEndScreen}) {
+
+  async onChangeTrack(ev) {
+    try {
+      const response = await fetch(UPDATE_USER_TRACK_ACTION, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({track: ev.target.value})
+      });
+
+      const data = await response.json();
+
+      if (data.err) throw Error(data.err);
+
+      this.onUserUpdate(data.user);
+    }
+    catch (err) {
+      // TODO: toast?
+      throw err;
+    }
+  }
+  render({server}, {user, question, questionClosed, correctAnswers, answersSubmitted, naiveLoginAllowed, showEndScreen, showingSplitTracks}) {
     // Question: OPEN
     const shouldShowQuestion = (question && !server) ||
 
@@ -104,35 +129,39 @@ export default class App extends BoundComponent {
           />
         </header>
         <div class="container">
-          {showEndScreen ?
-            <EndScreen />
-            :
-            (user ?
-              (shouldShowQuestion?
-                <Question
-                  key={`question-${question.id}`}
-                  id={question.id}
-                  title={question.title}
-                  text={question.text}
-                  multiple={question.multiple}
-                  answers={question.answers}
-                  code={question.code}
-                  codeType={question.codeType}
-                  closed={questionClosed}
-                  correctAnswers={correctAnswers}
-                  answersSubmitted={answersSubmitted}
-                />
-                :
-                <QuestionWaiting
-                  key="question-waiting"
-                  user={user}
-                  server={server}
-                  onUserUpdate={this.onUserUpdate}
-                />
-              )
+          {user ?
+              (<div class=8litTracks ? 
+                  <TracksTabs 
+                    user={user}
+                    onChangeTrack={this.onChangeTrack}
+                  /> : ''
+                }
+                {shouldShowQuestion ?
+                  <Question
+                    key={`question-${question.id}`}
+                    id={question.id}
+                    title={question.title}
+                    text={question.text}
+                    multiple={question.multiple}
+                    answers={question.answers}
+                    code={question.code}
+                    codeType={question.codeType}
+                    closed={questionClosed}
+                    correctAnswers={correctAnswers}
+                    answersSubmitted={answersSubmitted}
+                    track={question.track}
+                  />
+                  :
+                  <QuestionWaiting
+                    key="question-waiting"
+                    user={user}
+                    server={server}
+                    onUserUpdate={this.onUserUpdate}
+                  />
+                }
+              </div>)
               :
               <Intro key="intro" naiveLoginAllowed={naiveLoginAllowed}/>
-            )
           }
         </div>
         <a class="privacy" href="https://github.com/CSS-Minsk-JS/big-web-quiz" target="_blank">Forked from The Big Web Quiz by Google</a>

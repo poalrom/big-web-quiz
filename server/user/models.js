@@ -48,7 +48,8 @@ const userSchema = mongoose.Schema({
       questionId: {type: ObjectId, required: true},
       choices: [Number]
     }
-  ]
+  ],
+  track: {type: String, default: 'css'}
 });
 
 userSchema.index({ optIntoLeaderboard: 1, bannedFromLeaderboard: 1, score: -1 });

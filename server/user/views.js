@@ -118,7 +118,8 @@ export function simpleUserObject(user) {
     email: user.email,
     avatarUrl: user.avatarUrl,
     optIntoLeaderboard: user.optIntoLeaderboard,
-    score: user.score
+    score: user.score,
+    track: user.track
   }
 }
 
@@ -178,13 +179,16 @@ export async function naiveLogin(req, res) {
 }
 
 export function updateUser(req, res) {
-  // only dealing with optIntoLeaderboard for now
-  if (!('optIntoLeaderboard' in req.body)) {
+  // only dealing with optIntoLeaderboard and track for now
+  if (!('optIntoLeaderboard' in req.body || 'track' in req.body)) {
     res.json(simpleUserObject(req.user));
     return;
   }
-
-  req.user.optIntoLeaderboard = !!req.body.optIntoLeaderboard;
+  if ('optIntoLeaderboard' in req.body){
+    req.user.optIntoLeaderboard = !!req.body.optIntoLeaderboard;
+  } else {
+    req.user.track = req.body.track;
+  }
   req.user.save().then(newUser => {
     res.json({
       user: simpleUserObject(newUser)
