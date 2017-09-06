@@ -130,7 +130,8 @@ export default class App extends BoundComponent {
         </header>
         <div class="container">
           {user ?
-              (<div class=8litTracks ? 
+              (<div class="container-wrap">
+                {showingSplitTracks ? 
                   <TracksTabs 
                     user={user}
                     onChangeTrack={this.onChangeTrack}
