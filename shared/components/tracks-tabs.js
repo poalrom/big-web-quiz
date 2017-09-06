@@ -20,14 +20,26 @@ import BoundComponent from './bound-component';
 export default class TracksTabs extends BoundComponent {
   render({onChangeTrack, user}) {
     return (
-      <form class="track-tabs">
-        <label>
-          <input value="css" type="radio" checked={user.track === 'css'} onChange={onChangeTrack} />
-          CSS
+      <form class="tracks-tabs" name="tracks-tabs">
+        <label class="tracks-tabs__tab">
+          <input 
+            name="css"
+            value="css"
+            type="radio" 
+            checked={user.track === 'css'} 
+            onChange={onChangeTrack}
+          />
+          <span class="tracks-tabs__tab-title">CSS</span>
         </label>
-        <label>
-          <input value="js" type="radio" checked={user.track === 'js'} onChange={onChangeTrack} />
-          JS
+        <label class="tracks-tabs__tab">
+          <input 
+            name="js"
+            value="js"
+            type="radio"
+            checked={user.track === 'js'}
+            onChange={onChangeTrack} 
+          />
+          <span class="tracks-tabs__tab-title">JS</span>
         </label>
       </form>
     );
