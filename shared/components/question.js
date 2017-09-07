@@ -25,20 +25,22 @@ export default class Question extends BoundComponent {
   constructor(props) {
     super(props);
 
+    const defaultAnswersValue = {all: [], css: [], js:[]};
+
     this.formAction = '/question-answer.json';
     this.form = null;
 
     this.state = {
-      answersChecked: props.answersSubmitted || [],
-      answersSubmitted: props.answersSubmitted || [],
+      answersChecked: props.answersSubmitted || Object.assign({}, defaultAnswersValue),
+      answersSubmitted: props.answersSubmitted || Object.assign({}, defaultAnswersValue),
       spinnerState: '',
-      submittedAnswersThisSession: false
+      submittedAnswersThisSession: !!props.answersSubmitted && !!props.answersSubmitted[props.track] && props.answersSubmitted[props.track].length
     };
   }
   componentWillReceiveProps(newProps) {
     if (this.props.id != newProps.id) {
       this.setState({
-        answersChecked: [],
+        answersChecked: Object.assign({}, defaultAnswersValue),
         submittedAnswersThisSession: false
       });
     }
@@ -64,7 +66,7 @@ export default class Question extends BoundComponent {
         body: JSON.stringify({
           id: this.props.id,
           // becomes an array of indexes checked
-          choices: answersChecked.reduce((arr, choiceChecked, i) => {
+          choices: answersChecked[this.props.track].reduce((arr, choiceChecked, i) => {
             if (choiceChecked) {
               arr.push(i);
             }
@@ -93,11 +95,13 @@ export default class Question extends BoundComponent {
     });
   }
   onChoiceChange() {
+    let answersChecked = {};
+    answersChecked[this.props.track] = Array.from(
+        this.form.querySelectorAll('input[name=answer]')
+      ).map(el => el.checked);
     this.setState({
       submittedAnswersThisSession: false,
-      answersChecked: Array.from(
-        this.form.querySelectorAll('input[name=answer]')
-      ).map(el => el.checked)
+      answersChecked: Object.assign({}, this.state.answersChecked, answersChecked)
     })
   }
   render({
@@ -109,8 +113,7 @@ export default class Question extends BoundComponent {
     submittedAnswersThisSession
   }) {
     const codeEl = code && <Code code={code} codeType={codeType}></Code>;
-
-    const answersToCheck = closed ? answersSubmitted : answersChecked;
+    const answersToCheck = closed ? answersSubmitted: answersChecked;
 
     return (
       <section class={
@@ -152,7 +155,7 @@ export default class Question extends BoundComponent {
                     type={multiple ? 'checkbox' : 'radio'}
                     name="answer"
                     value={i}
-                    checked={answersToCheck[i]}
+                    checked={answersToCheck[track][i]}
                     disabled={closed}
                     onChange={this.onChoiceChange}
                   />
@@ -176,7 +179,7 @@ export default class Question extends BoundComponent {
                         'question__submitted-answer question__submitted-answer--success' :
                         'question__submitted-answer'
                     }>Answer submitted</div>
-                    <button disabled={closed || spinnerState || (answersChecked.length === 0 && !multiple)} class={
+                    <button disabled={closed || spinnerState || (answersChecked[track].length === 0 && !multiple)} class={
                       spinnerState ?
                         'question__submit question__submit--pending' :
                         'question__submit'

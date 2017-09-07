@@ -73,10 +73,14 @@ export default class App extends BoundComponent {
               });
             }
             // Is question changing?
-            if (msg.activeQuestions && (!this.state.question || this.state.question.id != msg.question.id)) {
-              // Reset submitted questions
-              msg.answersSubmitted = [];
-            }
+            ['all', 'css', 'js'].forEach((track)=> {
+              if (!(this.state.activeQuestions && this.state.activeQuestions[track] && this.state.activeQuestions[track].question && msg.activeQuestions && msg.activeQuestions[track] && msg.activeQuestions[track].question && this.state.activeQuestions[track].question.id == msg.activeQuestions[track].question.id)) {
+                if(!msg.answersSubmitted) msg.answersSubmitted = {};
+                  // Reset submitted questions
+                  msg.answersSubmitted[track] = [];
+                }
+            });
+
             this.setState(msg);
           });
         })

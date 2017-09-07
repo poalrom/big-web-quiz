@@ -262,7 +262,7 @@ export function deleteUsersJson(req, res) {
 
 export async function questionAnswerJson(req, res) {
   try {
-    if (!quiz.activeQuestion) {
+    if (!quiz.activeQuestions || (!quiz.activeQuestions['all'].question && !quiz.activeQuestions['css'].question && !quiz.activeQuestions['js'].question)) {
       res.json({err: "No question being asked"});
       return;
     }
@@ -274,12 +274,13 @@ export async function questionAnswerJson(req, res) {
       return;
     }
 
-    if (!question._id.equals(quiz.activeQuestion._id)) {
+    if (!quiz.activeQuestions[question.track] || !quiz.activeQuestions[question.track].question || !question._id.equals(quiz.activeQuestions[question.track].question._id)) {
       res.json({err: "This question isn't currently being asked"});
       return;
     }
 
-    if (!quiz.acceptingAnswers) {
+    const activeQuestion = quiz.activeQuestions[question.track].question;
+    if (!quiz.isAcceptingAnswers(question.track)) {
       res.json({err: "Too late!"});
       return;
     }
@@ -295,21 +296,25 @@ export async function questionAnswerJson(req, res) {
         // remove non-numbers
         if (typeof choice != 'number') return false;
         // remove out-of-range numbers
-        if (choice < 0 || choice > quiz.activeQuestion.answers.length - 1) return false;
+        if (choice < 0 || choice > activeQuestion.answers.length - 1) return false;
         return true;
       })
     )];
 
-    if (!quiz.activeQuestion.multiple && choices.length != 1) {
+    if (!activeQuestion.multiple && choices.length != 1) {
       res.json({err: "Must provide one answer"});
       return;
     }
 
     const answerIndex = req.user.answers.findIndex(a => a.questionId.equals(question._id));
-    quiz.cacheAnswers(req.user._id, choices);
+    quiz.cacheAnswers(req.user._id, choices, question.track);
 
     presentationListeners.broadcastThrottled({
-      averages: quiz.getAverages()
+      averages: {
+        all: quiz.getAverages(),
+        css: quiz.getAverages('css'),
+        ja: quiz.getAverages('js')
+      }
     });
 
     if (answerIndex != -1) {

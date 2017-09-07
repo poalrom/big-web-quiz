@@ -55,7 +55,11 @@ export class Quiz {
       js: null
     };
     this._showingLeaderboard = false;
-    this._cachedUserAnswers = {};
+    this._cachedUserAnswers = {
+      all: {},
+      css: {},
+      js: {}
+    };
     this.showingVideo = '';
     this.showingBlackout = false;
     this.showingSplitTracks = false;
@@ -67,8 +71,8 @@ export class Quiz {
   getActiveQuestion(track = "all") {
     return this._activeQuestions[track] && this._activeQuestions[track].question;
   }
-  getAcceptingAnswers(track = "all") {
-    return this._activeQuestions[track] && this._activeQuestions[track].stage == 'acceptingAnswers';
+  isAcceptingAnswers(track = "all") {
+    return this._activeQuestions[track] && (['acceptingAnswers', 'showingLiveResults'].indexOf(this._activeQuestions[track].stage) > -1);
   }
   getRevealingAnswers(track = "all") {
     return this._activeQuestions[track] && this._activeQuestions[track].stage == 'revealingAnswers';
@@ -83,7 +87,7 @@ export class Quiz {
     if (!this._activeQuestions[question.track]) this._activeQuestions[question.track] = {};
     this._activeQuestions[question.track].question = question;
     this._activeQuestions[question.track].stage = 'acceptingAnswers';
-    this._cachedUserAnswers = {};
+    this._cachedUserAnswers[question.track] = {};
   }
   showLiveResults(track = "all") {
     if (this._activeQuestions[track]) {      
@@ -91,24 +95,27 @@ export class Quiz {
     }
   }
   cacheAnswers(userId, answers, track = "all") {
-    if (!this._cachedUserAnswers[userId]) {
-      this._cachedUserAnswers[userId] = {};
+    if (!this._cachedUserAnswers[track][userId]) {
+      this._cachedUserAnswers[track][userId] = {};
     }
-    this._cachedUserAnswers[userId][track] = answers;
+    this._cachedUserAnswers[track][userId] = answers;
   }
   getAverages(track = "all") {
-    let total = 0;
-    const occurrences = Array(this._activeQuestions[track].question.answers.length).fill(0);
+    if (!!this._activeQuestions[track] && !!this._activeQuestions[track].question){
+      let total = 0;
+      const occurrences = Array(this._activeQuestions[track].question.answers.length).fill(0);
 
-    for (const userId of Object.keys(this._cachedUserAnswers)) {
-      total++;
-      const choices = this._cachedUserAnswers[userId][track];
-      for (const choice of choices) {
-        occurrences[choice]++;
+      for (const userId of Object.keys(this._cachedUserAnswers[track])) {
+        total++;
+        const choices = this._cachedUserAnswers[track][userId];
+        for (const choice of choices) {
+          occurrences[choice]++;
+        }
       }
-    }
 
-    return occurrences.map(n => n/total);
+      return occurrences.map(n => n/total);      
+    }
+    return null;
   }
   closeForAnswers(track = "all") {
     if (!this._activeQuestions || !this._activeQuestions[track]) throw Error("No active question");
