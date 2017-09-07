@@ -58,7 +58,7 @@ export class Quiz {
     this._cachedUserAnswers = {};
     this.showingVideo = '';
     this.showingBlackout = false;
-    this.showingSplitTracks = true;
+    this.showingSplitTracks = false;
     this.showingEndScreen = false;
   }
   get activeQuestions() {
@@ -131,18 +131,19 @@ export class Quiz {
   }
   getState() {
     const tracks = ['all', 'css', 'js'];
-    const questions = tracks.map(track => this._activeQuestions[track] && {
-      id: this._activeQuestions[track]._id,
-      title: this._activeQuestions[track].title,
-      text: this._activeQuestions[track].text,
-      code: this._activeQuestions[track].code,
-      codeType: this._activeQuestions[track].codeType,
-      multiple: this._activeQuestions[track].multiple,
-      scored: this._activeQuestions[track].scored,
-      track: this._activeQuestions[track].track,
+    const questions = tracks.map(track => this._activeQuestions[track] && this._activeQuestions[track].question && {
+      id: this._activeQuestions[track].question._id,
+      title: this._activeQuestions[track].question.title,
+      text: this._activeQuestions[track].question.text,
+      code: this._activeQuestions[track].question.code,
+      codeType: this._activeQuestions[track].question.codeType,
+      multiple: this._activeQuestions[track].question.multiple,
+      scored: this._activeQuestions[track].question.scored,
+      track: this._activeQuestions[track].question.track,
       // Don't want to send which answers are correct all the time,
       // see `correctAnswers` below
-      answers: this._activeQuestions[track].question.answers.map(answer => ({text: answer.text}))
+      answers: this._activeQuestions[track].question.answers.map(answer => ({text: answer.text})),
+      questionClosed: ['showingLiveResultsAll', 'revealingAnswers'].indexOf(this._activeQuestions[track].stage) > -1
     });
     const correctAnswers = tracks.map(track=> this._activeQuestions[track] && this._activeQuestions[track].question && this._activeQuestions[track].stage == 'revealingAnswers' &&
         this._activeQuestions[track].question.answers.reduce((arr, answer, i) => {

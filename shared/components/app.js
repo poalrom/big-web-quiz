@@ -36,19 +36,25 @@ export default class App extends BoundComponent {
     // {
     //   user: see simpleUserObject in server/user/views.js,
     //   lastMessageTime: Number, // the last message time sent to long-pollers
-    //   question: {
-    //     id: String,
-    //     text: String,
-    //     code: String, // optional code example
-    //     multiple: Boolean, // accept multiple choices
-    //     answers: [{text: String}]
-    //   },
-    //   questionClosed: Boolean,
+    //   activeQuestions: {
+    //     all: {
+    //       question: {
+    //         id: String,
+    //         text: String,
+    //         code: String, // optional code example
+    //         multiple: Boolean, // accept multiple choices
+    //         answers: [{text: String}]
+    //       }, 
+    //       stage: String, in [acceptingAnswers, revealingAnswers, showingLiveResults, showingLiveResultsAll]
+    //     },
+    //     css: {question},
+    //     js: {question}
+    //   }
     //   naiveLoginAllowed: Boolean,
     //   showEndScreen: Boolean,
     //   showingSplitTracks: Boolean,
-    //   correctAnswers: [Number],
-    //   answersSubmitted: [Number], answers the user submitted for the question
+    //   correctAnswers: {all: [Number], css, js},
+    //   answersSubmitted: {all: [Number], css, js}, answers the user submitted for the question
     // }
     this.state = props.initialState;
 
@@ -57,9 +63,8 @@ export default class App extends BoundComponent {
       window.load.then(() => {
         requestAnimationFrame(() => {
           const longPoll = new LongPoll(props.initialState.lastMessageTime);
-
           longPoll.on('message', msg => {
-            if (msg.correctAnswers) { // update the score
+            if (msg.correctAnswers[this.state.user.track]) { // update the score
               // TODO: change view while this is updating?
               fetch('/me.json', {
                 credentials: 'include'
@@ -68,7 +73,7 @@ export default class App extends BoundComponent {
               });
             }
             // Is question changing?
-            if (msg.question && (!this.state.question || this.state.question.id != msg.question.id)) {
+            if (msg.activeQuestions && (!this.state.question || this.state.question.id != msg.question.id)) {
               // Reset submitted questions
               msg.answersSubmitted = [];
             }
@@ -107,17 +112,17 @@ export default class App extends BoundComponent {
       throw err;
     }
   }
-  render({server}, {user, question, questionClosed, correctAnswers, answersSubmitted, naiveLoginAllowed, showEndScreen, showingSplitTracks}) {
+  render({server}, {user, activeQuestions, questionClosed, correctAnswers, answersSubmitted, naiveLoginAllowed, showEndScreen, showingSplitTracks}) {
+    const userTrack = showingSplitTracks ? user.track : 'all';
+    const question = activeQuestions[userTrack];
     // Question: OPEN
-    const shouldShowQuestion = ((question && !server) ||
+    const shouldShowQuestion = (question && !server) ||
     
           // Question: CLOSED
-          (question && questionClosed) ||
+          (question && question.questionClosed) ||
     
           // Question: REVEALED
-          (question && questionClosed && correctAnswers && correctAnswers.length)) && 
-
-    (question.track == 'all' || (question.track == user.track && showingSplitTracks));
+          (question && question.questionClosed && correctAnswers[userTrack] && correctAnswers[userTrack].length);
 
     return (
       <div class="app">
@@ -149,7 +154,7 @@ export default class App extends BoundComponent {
                     answers={question.answers}
                     code={question.code}
                     codeType={question.codeType}
-                    closed={questionClosed}
+                    closed={question.questionClosed}
                     correctAnswers={correctAnswers}
                     answersSubmitted={answersSubmitted}
                     track={question.track}

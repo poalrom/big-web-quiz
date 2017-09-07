@@ -103,7 +103,7 @@ export default class Question extends BoundComponent {
   render({
     id, title, text, multiple, answers, closed,
     showLiveResults, correctAnswers, code,
-    codeType, presentation
+    codeType, presentation, track
   }, {
     answersChecked, answersSubmitted, spinnerState,
     submittedAnswersThisSession
@@ -158,8 +158,8 @@ export default class Question extends BoundComponent {
                   />
                   <label
                     for={`question-${id}-answer-${i}`}
-                    class={correctAnswers ?
-                      (correctAnswers.includes(i) ?
+                    class={(correctAnswers && correctAnswers[track]) ?
+                      (correctAnswers[track].includes(i) ?
                         'question__answer-label question__answer-label--correct' :
                         'question__answer-label question__answer-label--incorrect')
                     : 'question__answer-label'}>
