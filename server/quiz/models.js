@@ -80,17 +80,15 @@ export class Quiz {
     return this._showingLeaderboard;
   }
   setQuestion(question) {
-    if(!this._activeQuestions[question.track]) this._activeQuestions[question.track] = {};
+    if (!this._activeQuestions[question.track]) this._activeQuestions[question.track] = {};
     this._activeQuestions[question.track].question = question;
     this._activeQuestions[question.track].stage = 'acceptingAnswers';
     this._cachedUserAnswers = {};
-    this.showingVideo = '';
   }
   showLiveResults(track = "all") {
-    if (this._activeQuestions[question.track]) {      
-      this._activeQuestions[question.track].stage = 'showLiveResults';
+    if (this._activeQuestions[track]) {      
+      this._activeQuestions[track].stage = 'showingLiveResults';
     }
-    this.showingVideo = '';
   }
   cacheAnswers(userId, answers, track = "all") {
     if (!this._cachedUserAnswers[userId]) {
@@ -114,13 +112,12 @@ export class Quiz {
   }
   closeForAnswers(track = "all") {
     if (!this._activeQuestions || !this._activeQuestions[track]) throw Error("No active question");
-    this._activeQuestions[question.track].stage = 'showingLiveResults';
+    this._activeQuestions[track].stage = 'showingLiveResultsAll';
     this.showingVideo = '';
   }
   revealAnswers(track = "all") {
     if (!this._activeQuestions || !this._activeQuestions[track]) throw Error("No active question");
-    this._activeQuestions[question.track].stage = 'revealingAnswers';
-    this.showingVideo = '';
+    this._activeQuestions[track].stage = 'revealingAnswers';
   }
   unsetQuestion(track = "all") {
     this._activeQuestions[track] = null;

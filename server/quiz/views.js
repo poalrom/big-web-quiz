@@ -34,9 +34,9 @@ export function adminStateJson(req, res) {
       if (quiz.activeQuestions[question.track] && quiz.activeQuestions[question.track].question) {
         question.active = quiz.activeQuestions[question.track].question._id.equals(question._id);
         if (question.active) {
-          question.closed = quiz.activeQuestions[question.track].state == 'acceptingAnswers';
-          question.revealingAnswers = quiz.activeQuestions[question.track].state == 'revealingAnswers';
-          question.showingLiveResults = quiz.activeQuestions[question.track].state == 'showingLiveResults';
+          question.closed = ['showingLiveResultsAll', 'revealingAnswers'].indexOf(quiz.activeQuestions[question.track].stage) > -1;
+          question.revealingAnswers = quiz.activeQuestions[question.track].stage == 'revealingAnswers';
+          question.showingLiveResults = ['showingLiveResults', 'showingLiveResultsAll', 'revealingAnswers'].indexOf(quiz.activeQuestions[question.track].stage) > -1;
         }
       }
     }
@@ -147,12 +147,12 @@ export function closeQuestionJson(req, res) {
       return;
     }
 
-    if (!quiz.activeQuestion || !question.equals(quiz.activeQuestion)) {
-      res.status(404).json({err: "This isn't the active question"});
+    if (!quiz.activeQuestions[question.track] || !quiz.activeQuestions[question.track].question || !question.equals(quiz.activeQuestions[question.track].question)) {
+      res.status(404).json({err: `This isn't the active ${question.track} question`});
       return;
     }
 
-    quiz.closeForAnswers();
+    quiz.closeForAnswers(question.track);
     presentationListeners.broadcast(quiz.getState());
     longPollers.broadcast(quiz.getState());
 
@@ -169,12 +169,12 @@ export function revealQuestionJson(req, res) {
       return;
     }
 
-    if (!quiz.activeQuestion || !question.equals(quiz.activeQuestion)) {
-      res.status(404).json({err: "This isn't the active question"});
+    if (!quiz.activeQuestions[question.track] || !quiz.activeQuestions[question.track].question || !question.equals(quiz.activeQuestions[question.track].question)) {
+      res.status(404).json({err: `This isn't the active ${question.track} question`});
       return;
     }
 
-    quiz.revealAnswers();
+    quiz.revealAnswers(question.track);
 
     return Question.find();
   }).then(qs => User.updateScores(qs)).then(() => {
@@ -188,25 +188,20 @@ export function revealQuestionJson(req, res) {
 
 export async function deactivateQuestionJson(req, res) {
   try {
-    if (!req.body.any) {
-      const question = await findQuestion(req.body);
+    const question = await findQuestion(req.body);
 
-      if (!question) {
-        res.status(404).json({ err: "Question not found" });
-        return;
-      }
-
-      if (!quiz.activeQuestion || !question.equals(quiz.activeQuestion)) {
-        res.status(404).json({ err: "This isn't the active question" });
-        return;
-      }
+    if (!question) {
+      res.status(404).json({ err: "Question not found" });
+      return;
     }
 
-    if (quiz.activeQuestion) {
-      quiz.unsetQuestion();
-      presentationListeners.broadcast(quiz.getState());
-      longPollers.broadcast(quiz.getState());
+    if (!quiz.activeQuestions[question.track] || !quiz.activeQuestions[question.track].question || !question.equals(quiz.activeQuestions[question.track].question)) {
+      res.status(404).json({ err: `This isn't the active ${question.track} question` });
+      return;
     }
+    quiz.unsetQuestion(question.track);
+    presentationListeners.broadcast(quiz.getState());
+    longPollers.broadcast(quiz.getState());
 
     adminStateJson(req, res);
   }
@@ -221,13 +216,14 @@ export function liveResultsQuestionJson(req, res) {
       res.status(404).json({err: "Question not found"});
       return;
     }
+    console.log(question);
 
-    if (!quiz.activeQuestion || !question.equals(quiz.activeQuestion)) {
-      res.status(404).json({err: "This isn't the active question"});
+    if (!quiz.activeQuestions[question.track] || !quiz.activeQuestions[question.track].question || !question.equals(quiz.activeQuestions[question.track].question)) {
+      res.status(404).json({err: `This isn't the active ${question.track} question`});
       return;
     }
 
-    quiz.showLiveResults();
+    quiz.showLiveResults(question.track);
 
     presentationListeners.broadcast(quiz.getState());
     adminStateJson(req, res);
