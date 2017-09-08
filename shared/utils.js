@@ -15,5 +15,11 @@
 * limitations under the License.
 */
 export function wait(ms) {
-  return new Promise(r => setTimeout(r, ms));
+  return new Promise((r) => setTimeout(r, ms));
 }
+
+export function getDefaultTracksObject(all = null, css = null, js = null) {
+  return Object.assign({}, { all, css, js });
+}
+
+export const tracks = ['all', 'css', 'js'];

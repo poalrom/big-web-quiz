@@ -17,12 +17,12 @@
 import GoogleAuth from 'google-auth-library';
 import uuidV4 from 'uuid/v4';
 
-import {User, ADMIN_IDS, setNaiveLogin, naiveLoginAllowed} from './models';
-import {Question} from '../quiz/models';
-import {quiz, presentationListeners} from '../quiz/views';
-import {longPollers} from '../long-pollers/views';
+import { User, ADMIN_IDS, setNaiveLogin, naiveLoginAllowed } from './models';
+import { Question } from '../quiz/models';
+import { quiz, presentationListeners } from '../quiz/views';
+import { longPollers } from '../long-pollers/views';
 import promisify from '../promisify';
-import {clientId, clientSecret, redirectOrigin} from '../settings';
+import { clientId, clientSecret, redirectOrigin } from '../settings';
 
 const auth = new GoogleAuth();
 auth.OAuth2.GOOGLE_OAUTH2_AUTH_BASE_URL_ = 'https://accounts.google.com/o/oauth2/v2/auth';
@@ -48,11 +48,13 @@ async function authenticateUser(code) {
     email: loginPayload.email
   };
 
-  /*if (!(update.email.endsWith('@google.com') || ADMIN_IDS.includes(update.googleId))) {
+  /* if (!(update.email.endsWith('@google.com') || ADMIN_IDS.includes(update.googleId))) {
     throw Error('Google employees only right now');
   }*/
 
-  if (loginPayload.name) update.name = loginPayload.name;
+  if (loginPayload.name) {
+    update.name = loginPayload.name;
+  }
   if (loginPayload.picture) {
     update.avatarUrl = loginPayload.picture.replace(/\/s96-c\/.*$/, '/');
   }
@@ -65,24 +67,24 @@ async function authenticateUser(code) {
 }
 
 function logout(req) {
-  return new Promise(r => req.session.destroy(r));
+  return new Promise((r) => req.session.destroy(r));
 }
 
 function requiresAdmin(req) {
   if (!req.user) {
-    return "Login required";
+    return 'Login required';
   }
 
   if (!req.user.isAdmin()) {
-    return "Admin only, soz";
+    return 'Admin only, soz';
   }
 
-  return "";
+  return '';
 }
 
 export function generateAuthUrl({
   state = ''
-}={}) {
+} = {}) {
   const oauth2Client = getAuthClient();
   return oauth2Client.generateAuthUrl({
     scope: ['openid', 'email', 'profile'],
@@ -96,17 +98,17 @@ export function userMiddleware(req, res, next) {
     return;
   }
 
-  User.findOne({googleId: req.session.userId}).then(user => {
+  User.findOne({ googleId: req.session.userId }).then((user) => {
     req.user = user;
     next();
   });
 }
 
 export function handleLogin(req, res) {
-  authenticateUser(req.query.code).then(user => {
+  authenticateUser(req.query.code).then((user) => {
     req.session.userId = user.googleId;
     res.redirect(req.query.state);
-  }).catch(err => {
+  }).catch((err) => {
     res.set('Content-Type', 'text/plain').send('Auth failed: ' + err.message);
   });
 }
@@ -121,13 +123,13 @@ export function simpleUserObject(user) {
     score: user.score,
     track: user.track,
     answers: quiz.getUsersAnswers(user.answers)
-  }
+  };
 }
 
 export function userJson(req, res) {
   if (!req.user) {
     res.json({
-      user: null 
+      user: null
     });
     return;
   }
@@ -145,7 +147,7 @@ export function logoutRedirect(req, res) {
 
 export function logoutJson(req, res) {
   logout(req).then(() => {
-    res.json({done: true});
+    res.json({ done: true });
   });
 }
 
@@ -185,17 +187,17 @@ export function updateUser(req, res) {
     res.json(simpleUserObject(req.user));
     return;
   }
-  if ('optIntoLeaderboard' in req.body){
+  if ('optIntoLeaderboard' in req.body) {
     req.user.optIntoLeaderboard = !!req.body.optIntoLeaderboard;
   } else {
     req.user.track = req.body.track;
   }
-  req.user.save().then(newUser => {
+  req.user.save().then((newUser) => {
     res.json({
       user: simpleUserObject(newUser)
     });
-  }).catch(err => {
-    res.status(500).json({err: 'Update failed'})
+  }).catch((err) => {
+    res.status(500).json({ err: 'Update failed' });
     throw err;
   });
 }
@@ -215,7 +217,7 @@ export function requiresAdminJson(req, res, next) {
   const err = requiresAdmin(req);
 
   if (err) {
-    res.status(403).json({err});
+    res.status(403).json({ err });
     return;
   }
 
@@ -228,7 +230,7 @@ export function requiresLogin(req, res, next) {
   }
 
   if (!req.user) {
-    res.status(403).send("Not logged in");
+    res.status(403).send('Not logged in');
     return;
   }
 
@@ -237,7 +239,7 @@ export function requiresLogin(req, res, next) {
 
 export function requiresLoginJson(req, res, next) {
   if (!req.user) {
-    res.status(403).json({err: "Not logged in"});
+    res.status(403).json({ err: 'Not logged in' });
     return;
   }
 
@@ -245,74 +247,80 @@ export function requiresLoginJson(req, res, next) {
 }
 
 export function deleteUserAnswersJson(req, res) {
-  User.update({}, {answers: [], score: 0}, {multi: true}).then(() => {
+  User.update({}, { answers: [], score: 0 }, { multi: true }).then(() => {
     res.json({});
-  }).catch(err => {
-    res.status(500).json({err});
+  }).catch((err) => {
+    res.status(500).json({ err });
   });
 }
 
 export function deleteUsersJson(req, res) {
   User.remove({}).then(() => {
-    longPollers.broadcast({user: null});
+    longPollers.broadcast({ user: null });
     res.json({});
-  }).catch(err => {
-    res.status(500).json({err});
+  }).catch((err) => {
+    res.status(500).json({ err });
   });
 }
 
 export async function questionAnswerJson(req, res) {
   try {
     let counter = 0;
-    ['all', 'css', 'js'].forEach(track => {
-      if(!quiz.activeQuestions || !quiz.activeQuestions[track] || !quiz.activeQuestions[track].question) counter++;
-    })
+    ['all', 'css', 'js'].forEach((track) => {
+      if (!quiz.activeQuestions || !quiz.activeQuestions[track] || !quiz.activeQuestions[track].question) {
+        counter++;
+      }
+    });
 
-    if(counter == ['all', 'css', 'js'].length){
-      res.json({err: "No question being asked"});
+    if (counter === ['all', 'css', 'js'].length) {
+      res.json({ err: 'No question being asked' });
       return;
     }
 
     const question = await Question.findById(req.body.id);
 
     if (!question) {
-      res.json({err: "Question not found"});
+      res.json({ err: 'Question not found' });
       return;
     }
 
     if (!quiz.activeQuestions[question.track] || !quiz.activeQuestions[question.track].question || !question._id.equals(quiz.activeQuestions[question.track].question._id)) {
-      res.json({err: "This question isn't currently being asked"});
+      res.json({ err: 'This question isn\'t currently being asked' });
       return;
     }
 
     const activeQuestion = quiz.activeQuestions[question.track].question;
     if (!quiz.isAcceptingAnswers(question.track)) {
-      res.json({err: "Too late!"});
+      res.json({ err: 'Too late!' });
       return;
     }
 
     if (!Array.isArray(req.body.choices)) {
-      res.json({err: "Choices is wrong type"});
+      res.json({ err: 'Choices is wrong type' });
       return;
     }
 
     // filter out bad answers and make unique
     const choices = [...new Set(
-      req.body.choices.filter(choice => {
+      req.body.choices.filter((choice) => {
         // remove non-numbers
-        if (typeof choice != 'number') return false;
+        if (typeof choice !== 'number') {
+          return false;
+        }
         // remove out-of-range numbers
-        if (choice < 0 || choice > activeQuestion.answers.length - 1) return false;
+        if (choice < 0 || choice > activeQuestion.answers.length - 1) {
+          return false;
+        }
         return true;
       })
     )];
 
-    if (!activeQuestion.multiple && choices.length != 1) {
-      res.json({err: "Must provide one answer"});
+    if (!activeQuestion.multiple && choices.length !== 1) {
+      res.json({ err: 'Must provide one answer' });
       return;
     }
 
-    const answerIndex = req.user.answers.findIndex(a => a.questionId.equals(question._id));
+    const answerIndex = req.user.answers.findIndex((a) => a.questionId.equals(question._id));
     quiz.cacheAnswers(req.user._id, choices, question.track);
 
     presentationListeners.broadcastThrottled({
@@ -323,62 +331,60 @@ export async function questionAnswerJson(req, res) {
       }
     });
 
-    if (answerIndex != -1) {
+    if (answerIndex !== -1) {
       req.user.answers[answerIndex].choices = choices;
-    }
-    else {
-      req.user.answers.push({questionId: question._id, choices});
+    } else {
+      req.user.answers.push({ questionId: question._id, choices });
     }
 
     await req.user.save();
     res.json({});
-  }
-  catch (e) {
-    res.status(500).json({err: "Unknown error"});
+  } catch (e) {
+    res.status(500).json({ err: 'Unknown error' });
   }
 }
 
 function topUsers() {
-  return User.find().limit(100).sort({score: -1}).then(users => {
-    const userObjs = users.map(user => {
+  return User.find().limit(100).sort({ score: -1 }).then((users) => {
+    const userObjs = users.map((user) => {
       const obj = simpleUserObject(user);
       obj.bannedFromLeaderboard = user.bannedFromLeaderboard;
       return obj;
     });
-    return {users: userObjs};
+    return { users: userObjs };
   });
 }
 
 export function getTopUsersJson(req, res) {
   // this is for admins only
-  topUsers().then(obj => {
+  topUsers().then((obj) => {
     res.json(obj);
-  }).catch(err => {
-    res.status(500).json({err: err.message});
+  }).catch((err) => {
+    res.status(500).json({ err: err.message });
   });
 }
 
 export function setLeaderboardBanJson(req, res) {
-  User.findOne({googleId: req.body.id}).then(user => {
+  User.findOne({ googleId: req.body.id }).then((user) => {
     if (!user) {
-      res.json({err: 'User not found'});
+      res.json({ err: 'User not found' });
       return;
     }
     user.bannedFromLeaderboard = req.body.ban;
     return user.save();
-  }).then(() => topUsers()).then(obj => {
+  }).then(() => topUsers()).then((obj) => {
     res.json(obj);
-  }).catch(err => {
-    res.status(500).json({err: err.message});
+  }).catch((err) => {
+    res.status(500).json({ err: err.message });
   });
 }
 
 export function allowNaiveLogin(req, res) {
   setNaiveLogin(true);
-  res.json({naiveLoginAllowed: naiveLoginAllowed()})
+  res.json({ naiveLoginAllowed: naiveLoginAllowed() });
 }
 
 export function disallowNaiveLogin(req, res) {
   setNaiveLogin(false);
-  res.json({naiveLoginAllowed: naiveLoginAllowed()})
+  res.json({ naiveLoginAllowed: naiveLoginAllowed() });
 }

@@ -19,28 +19,27 @@ import {h} from 'preact';
 import BoundComponent from './bound-component';
 import Code from './code';
 import QuestionSpinner from './question-spinner';
-import QuestionClosed from './question-closed'
+import QuestionClosed from './question-closed';
+import { getDefaultTracksObject } from '../utils';
 
 export default class Question extends BoundComponent {
   constructor(props) {
     super(props);
 
-    const defaultAnswersValue = {all: [], css: [], js:[]};
-
     this.formAction = '/question-answer.json';
     this.form = null;
 
     this.state = {
-      answersChecked: props.answersSubmitted || Object.assign({}, defaultAnswersValue),
-      answersSubmitted: props.answersSubmitted || Object.assign({}, defaultAnswersValue),
+      answersChecked: props.answersSubmitted || getDefaultTracksObject([], [], []),
+      answersSubmitted: props.answersSubmitted || getDefaultTracksObject([], [], []),
       spinnerState: '',
       submittedAnswersThisSession: !!props.answersSubmitted && !!props.answersSubmitted[props.track] && props.answersSubmitted[props.track].length
     };
   }
   componentWillReceiveProps(newProps) {
-    if (this.props.id != newProps.id) {
+    if (this.props.id !== newProps.id) {
       this.setState({
-        answersChecked: Object.assign({}, defaultAnswersValue),
+        answersChecked: Object.assign({}, getDefaultTracksObject([])),
         submittedAnswersThisSession: false
       });
     }
@@ -62,7 +61,7 @@ export default class Question extends BoundComponent {
       const response = await fetch(this.formAction, {
         method: 'POST',
         credentials: 'include',
-        headers: {'Content-Type': 'application/json'},
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           id: this.props.id,
           // becomes an array of indexes checked
@@ -77,9 +76,10 @@ export default class Question extends BoundComponent {
 
       const data = await response.json();
 
-      if (data.err) throw Error(data.err);
-    }
-    catch (err) {
+      if (data.err) {
+        throw Error(data.err);
+      }
+    } catch (err) {
       this.setState({
         spinnerState: '',
         submittedAnswersThisSession: false
@@ -97,12 +97,12 @@ export default class Question extends BoundComponent {
   onChoiceChange() {
     let answersChecked = {};
     answersChecked[this.props.track] = Array.from(
-        this.form.querySelectorAll('input[name=answer]')
-      ).map(el => el.checked);
+      this.form.querySelectorAll('input[name=answer]')
+    ).map((el) => el.checked);
     this.setState({
       submittedAnswersThisSession: false,
       answersChecked: Object.assign({}, this.state.answersChecked, answersChecked)
-    })
+    });
   }
   render({
     id, title, text, multiple, answers, closed,
@@ -139,12 +139,12 @@ export default class Question extends BoundComponent {
           onSubmit={this.onSubmit}
           action={this.formAction}
           method="POST"
-          ref={el => this.form = el}>
+          ref={(el) => this.form = el}>
           <div class="question__container">
             <h1 class="question__title">{title}</h1>
             <p class="question__text">{text}</p>
             {codeEl}
-            <div class={`question__answer-container ${(answers.length == 4 && code) ? 'presentation-answer-grid' : ''}`}>
+            <div class={`question__answer-container ${(answers.length === 4 && code) ? 'presentation-answer-grid' : ''}`}>
               {answers.map((answer, i) =>
                 <div class={
                   closed ?

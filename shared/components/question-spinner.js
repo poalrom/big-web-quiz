@@ -18,15 +18,15 @@ import { h } from 'preact';
 import BoundComponent from './bound-component';
 
 export default class QuestionSpinner extends BoundComponent {
-  render({state}) {
+  render({ state }) {
     let className = '';
 
-    if (state == 'spinning') {
+    if (state === 'spinning') {
       className = 'active';
     }
 
     return (
-      <div class={className}>{state == 'spinning' && 'I AM SPINNING'}</div>
+      <div class={className}>{state === 'spinning' && 'I AM SPINNING'}</div>
     );
   }
 }

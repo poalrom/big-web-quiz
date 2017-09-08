@@ -18,7 +18,7 @@ import mongoose from '../mongoose-db';
 const ObjectId = mongoose.Schema.Types.ObjectId;
 
 export const ADMIN_IDS = [
-  '106226344171608747626',  // ALeksandra Shinkevich
+  '106226344171608747626', // ALeksandra Shinkevich
   '101241719050029815932', // Pavel Lautsevich
   '107275858358244966388', // Anna Selezneva
   '102588369478580002197' // James Akwuh
@@ -35,21 +35,19 @@ export function setNaiveLogin(val) {
 }
 
 const userSchema = mongoose.Schema({
-  googleId: {type: String, unique: true, required: true, index: true},
-  name: {type: String, required: true, default: "Unknown name"},
+  googleId: { type: String, unique: true, required: true, index: true },
+  name: { type: String, required: true, default: 'Unknown name' },
   email: String,
-  avatarUrl: {type: String, required: true, default: "/static/images/ic_tag_faces_white_18px.svg"},
-  optIntoLeaderboard: {type: Boolean, required: true, default: false},
-  bannedFromLeaderboard: {type: Boolean, required: true, default: false},
+  avatarUrl: { type: String, required: true, default: '/static/images/ic_tag_faces_white_18px.svg' },
+  optIntoLeaderboard: { type: Boolean, required: true, default: false },
+  bannedFromLeaderboard: { type: Boolean, required: true, default: false },
   // Optimisation. See `updateScore`.
-  score: {type: Number, default: 0, index: true},
-  answers: [
-    {
-      questionId: {type: ObjectId, required: true},
-      choices: [Number]
-    }
-  ],
-  track: {type: String, default: 'css'}
+  score: { type: Number, default: 0, index: true },
+  answers: [{
+    questionId: { type: ObjectId, required: true },
+    choices: [Number]
+  }],
+  track: { type: String, default: 'css' }
 });
 
 userSchema.index({ optIntoLeaderboard: 1, bannedFromLeaderboard: 1, score: -1 });
@@ -59,15 +57,19 @@ userSchema.methods.isAdmin = function() {
 };
 
 userSchema.statics.updateScores = function(questions) {
-  return this.find().then(users => {
+  return this.find().then((users) => {
     for (const user of users) {
       let score = 0;
 
       for (const question of questions) {
-        if (!question.scored) continue;
+        if (!question.scored) {
+          continue;
+        }
 
-        const userAnswer = user.answers.find(answer => question._id.equals(answer.questionId));
-        if (!userAnswer) continue;
+        const userAnswer = user.answers.find((answer) => question._id.equals(answer.questionId));
+        if (!userAnswer) {
+          continue;
+        }
         const choices = userAnswer.choices;
 
         if (question.multiple) {
@@ -76,10 +78,9 @@ userSchema.statics.updateScores = function(questions) {
               score++;
             }
           }
-        }
-        else {
-          const correctIndex = question.answers.findIndex(a => a.correct);
-          if (choices[0] == correctIndex) {
+        } else {
+          const correctIndex = question.answers.findIndex((a) => a.correct);
+          if (choices[0] === correctIndex) {
             score += 4;
           }
         }
@@ -88,7 +89,7 @@ userSchema.statics.updateScores = function(questions) {
       user.score = score;
     }
 
-    return Promise.all(users.map(u => u.save()));
+    return Promise.all(users.map((u) => u.save()));
   });
 };
 

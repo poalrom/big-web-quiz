@@ -46,7 +46,7 @@ export default class LoginStatus extends BoundComponent {
   componentWillUnmount() {
     window.removeEventListener('click', this.onWindowClick);
   }
-  render({user, onLogout, server, onUserUpdate}, {leaderboardPending, bubbleOpen}) {
+  render({ user, onLogout, server, onUserUpdate }, { leaderboardPending, bubbleOpen }) {
     if (!user) {
       return (<div class="page-header__not-logged-in">Not signed in</div>);
     }
@@ -93,5 +93,5 @@ export default class LoginStatus extends BoundComponent {
 }
 
 LoginStatus.defaultProps = {
-  onUserUpdate: function(){}
+  onUserUpdate: function() {}
 };

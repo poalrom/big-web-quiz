@@ -18,26 +18,26 @@ import { h } from 'preact';
 import BoundComponent from './bound-component';
 
 export default class TracksTabs extends BoundComponent {
-  render({onChangeTrack, user}) {
+  render({ onChangeTrack, user }) {
     return (
       <form class="tracks-tabs" name="tracks-tabs">
         <label class="tracks-tabs__tab">
-          <input 
+          <input
             name="css"
             value="css"
-            type="radio" 
-            checked={user.track === 'css'} 
+            type="radio"
+            checked={user.track === 'css'}
             onChange={onChangeTrack}
           />
           <span class="tracks-tabs__tab-title">CSS</span>
         </label>
         <label class="tracks-tabs__tab">
-          <input 
+          <input
             name="js"
             value="js"
             type="radio"
             checked={user.track === 'js'}
-            onChange={onChangeTrack} 
+            onChange={onChangeTrack}
           />
           <span class="tracks-tabs__tab-title">JS</span>
         </label>
@@ -47,5 +47,5 @@ export default class TracksTabs extends BoundComponent {
 }
 
 TracksTabs.defaultProps = {
-  onChangeTrack: function(){}
+  onChangeTrack: function() {}
 };

@@ -22,7 +22,7 @@ self.global = self;
 // so we don't have to keep importing it
 self.regeneratorRuntime = regeneratorRuntime;
 
-window.load = new Promise(resolve => {
+window.load = new Promise((resolve) => {
   window.addEventListener('load', () => resolve());
 });
 
@@ -48,7 +48,9 @@ function loadStyle(url) {
 }
 
 async function getInitialState() {
-  if (self.initialState) return self.initialState;
+  if (self.initialState) {
+    return self.initialState;
+  }
 
   const response = await fetch('/initial-state.json', {
     credentials: 'include'
@@ -57,12 +59,14 @@ async function getInitialState() {
   return response.json();
 }
 
-const loadings = []; 
+const loadings = [];
 
-if (!window.fetch) loadings.push(loadScript('/static/js/polyfills.js'));
+if (!window.fetch) {
+  loadings.push(loadScript('/static/js/polyfills.js'));
+}
 loadings.push(loadStyle('/static/css/index.css'));
 
-Promise.all(loadings).then(() => getInitialState()).then(state => {
+Promise.all(loadings).then(() => getInitialState()).then((state) => {
   const main = document.querySelector('.main-content');
   main.innerHTML = '';
   render(<App initialState={state}/>, main);

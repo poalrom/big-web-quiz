@@ -30,7 +30,9 @@ export default class Transition extends Component {
     };
   }
   async componentDidUpdate() {
-    if (!this.shouldTransition) return;
+    if (!this.shouldTransition) {
+      return;
+    }
     this.shouldTransition = false;
 
     if (this.props.onTransition) {
@@ -42,30 +44,38 @@ export default class Transition extends Component {
       );
     }
 
-    this.setState({exitingChild: null});
+    this.setState({ exitingChild: null });
   }
-  render({children}, state) {
-    if (children.length > 1) throw Error('Only one child allowed in Transition');
+  render({ children }, state) {
+    if (children.length > 1) {
+      throw Error('Only one child allowed in Transition');
+    }
 
     const child = children[0];
-    
-    if (!child.key) throw Error('Child must have key');
 
-    const newChild = !state.currentChild || child.key != state.currentChild.key;
-    this.shouldTransition = state.currentChild && newChild; 
+    if (!child.key) {
+      throw Error('Child must have key');
+    }
+
+    const newChild = !state.currentChild || child.key !== state.currentChild.key;
+    this.shouldTransition = state.currentChild && newChild;
 
     if (this.shouldTransition) {
-      this.exitingChildEl = this.currentChildEl; 
+      this.exitingChildEl = this.currentChildEl;
       state.exitingChild = state.currentChild;
     }
 
     if (newChild) {
       const currentRef = child.attributes.ref;
-      child.attributes.ref = el => {
-        if (child.key != state.currentChild.key) return;
+      child.attributes.ref = (el) => {
+        if (child.key !== state.currentChild.key) {
+          return;
+        }
         this.currentChildEl = el;
-        if (currentRef) currentRef(el);
-      }
+        if (currentRef) {
+          currentRef(el);
+        }
+      };
       state.currentChild = child;
     }
 

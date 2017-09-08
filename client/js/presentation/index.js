@@ -25,6 +25,7 @@ import Audio from './components/audio';
 import Question from '../../../shared/components/question';
 import AverageValue from './components/average-value';
 import BoundComponent from '../../../shared/components/bound-component';
+import { getDefaultTracksObject } from '../../../shared/utils';
 
 const colors = [
   '#47DDBE',
@@ -44,28 +45,31 @@ class App extends BoundComponent {
     };
 
     const trackParam = location.search.split('track=')[1];
-    this.track = (trackParam == 'css' || trackParam == 'js') ? trackParam : 'all';
+    this.track = (trackParam === 'css' || trackParam === 'js') ? trackParam : 'all';
 
     const eventSource = new EventSource('/presentation/listen');
-    eventSource.onmessage = event => {
+    eventSource.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      
+
       // Is this a new question?
-      if (data.activeQuestions && data.activeQuestions[this.track] && (!this.state.activeQuestions || !this.state.activeQuestions[this.track] || data.activeQuestions[this.track].id != this.state.activeQuestions[this.track].id)) {
+      if (data.activeQuestions && data.activeQuestions[this.track] && (!this.state.activeQuestions || !this.state.activeQuestions[this.track] || data.activeQuestions[this.track].id !== this.state.activeQuestions[this.track].id)) {
         // Random order to display answers
         data.answerDisplayOrder = shuffle(data.activeQuestions[this.track].answers.map((_, i) => i));
-        if(!data.averages) data.averages = {};
+        if (!data.averages) {
+          data.averages = {};
+        }
         data.averages[this.track] = data.averages[this.track] || Array(data.activeQuestions[this.track].answers.length).fill(0);
       }
 
       this.setState(data);
     };
   }
-  update(prevProps={}, prevState={}) {
-    if (this.state.showVideo == 'intro' && prevState.showVideo != 'intro') {
-      if (this.introVideo) this.introVideo.play();
-    }
-    else if (!this.state.showVideo == 'intro' && prevState.showVideo == 'intro') {
+  update(prevProps = {}, prevState = {}) {
+    if (this.state.showVideo === 'intro' && prevState.showVideo !== 'intro') {
+      if (this.introVideo) {
+        this.introVideo.play();
+      }
+    } else if (!this.state.showVideo === 'intro' && prevState.showVideo === 'intro') {
       setTimeout(() => {
         if (this.introVideo) {
           this.introVideo.pause();
@@ -74,10 +78,11 @@ class App extends BoundComponent {
       }, 1000);
     }
 
-    if (this.state.showVideo == 'prize' && prevState.showVideo != 'prize') {
-      if (this.prizeVideo) this.prizeVideo.play();
-    }
-    else if (!this.state.showVideo == 'prize' && prevState.showVideo == 'prize') {
+    if (this.state.showVideo === 'prize' && prevState.showVideo !== 'prize') {
+      if (this.prizeVideo) {
+        this.prizeVideo.play();
+      }
+    } else if (!this.state.showVideo === 'prize' && prevState.showVideo === 'prize') {
       setTimeout(() => {
         if (this.prizeVideo) {
           this.prizeVideo.pause();
@@ -89,8 +94,8 @@ class App extends BoundComponent {
   componentDidMount() {
     this.update();
 
-    document.addEventListener('keyup', event => {
-      if (event.key == 'f') {
+    document.addEventListener('keyup', (event) => {
+      if (event.key === 'f') {
         event.preventDefault();
         document.documentElement.webkitRequestFullscreen();
       }
@@ -99,9 +104,11 @@ class App extends BoundComponent {
   componentDidUpdate(prevProps, prevState) {
     this.update(prevProps, prevState);
   }
-  render(props, {activeQuestions, correctAnswers, answerDisplayOrder, averages, leaderboard, showLiveResults, showVideo, showBlackout}) {
-    
-    if(!activeQuestions) activeQuestions = {all: null, css: null, js: null}
+  render(props, { activeQuestions, correctAnswers, answerDisplayOrder, averages, leaderboard, showBlackout }) {
+
+    if (!activeQuestions) {
+      activeQuestions = getDefaultTracksObject();
+    }
 
     if (leaderboard) {
       let type = 0;

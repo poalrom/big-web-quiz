@@ -19,7 +19,7 @@ import BoundComponent from './bound-component';
 import {Login} from './user';
 
 export default class Intro extends BoundComponent {
-  render({naiveLoginAllowed}) {
+  render({ naiveLoginAllowed }) {
     return (
       <div class="intro">
         <img class="intro__icon" width="250" src="/static/images/logo.svg" alt="CSS-Minsk-JS" />

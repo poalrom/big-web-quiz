@@ -63,20 +63,20 @@ export default class App extends BoundComponent {
       window.load.then(() => {
         requestAnimationFrame(() => {
           const longPoll = new LongPoll(props.initialState.lastMessageTime);
-          longPoll.on('message', msg => {
-              // Update user data to check answers and results
-              fetch('/me.json', {
-                credentials: 'include'
-              }).then(r => r.json()).then(data => {
-                this.setState(Object.assign({},msg, {user: data.user}));
-              });
+          longPoll.on('message', (msg) => {
+            // Update user data to check answers and results
+            fetch('/me.json', {
+              credentials: 'include'
+            }).then((r) => r.json()).then((data) => {
+              this.setState(Object.assign({}, msg, { user: data.user }));
+            });
           });
-        })
+        });
       });
     }
   }
   onUserUpdate(user) {
-    this.setState({user});
+    this.setState({ user });
   }
   onLogout() {
     this.setState({
@@ -89,30 +89,29 @@ export default class App extends BoundComponent {
       const response = await fetch(UPDATE_USER_TRACK_ACTION, {
         method: 'POST',
         credentials: 'include',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({track: ev.target.value})
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ track: ev.target.value })
       });
 
       const data = await response.json();
 
-      if (data.err) throw Error(data.err);
+      if (data.err) {
+        throw Error(data.err);
+      }
 
       this.onUserUpdate(data.user);
-    }
-    catch (err) {
+    } catch (err) {
       // TODO: toast?
       throw err;
     }
   }
-  render({server}, {user, activeQuestions, correctAnswers, naiveLoginAllowed, showEndScreen, showingSplitTracks}) {
+  render({ server }, { user, activeQuestions, correctAnswers, naiveLoginAllowed, showingSplitTracks }) {
     const userTrack = showingSplitTracks ? user.track : 'all';
     const question = activeQuestions[userTrack];
     // Question: OPEN
     const shouldShowQuestion = (question && !server) ||
-    
           // Question: CLOSED
           (question && question.questionClosed) ||
-    
           // Question: REVEALED
           (question && question.questionClosed && correctAnswers[userTrack] && correctAnswers[userTrack].length);
 
@@ -130,8 +129,8 @@ export default class App extends BoundComponent {
         <div class="container">
           {user ?
               (<div class="container-wrap">
-                {showingSplitTracks ? 
-                  <TracksTabs 
+                {showingSplitTracks ?
+                  <TracksTabs
                     user={user}
                     onChangeTrack={this.onChangeTrack}
                   /> : ''

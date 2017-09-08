@@ -18,7 +18,7 @@ import { h } from 'preact';
 import BoundComponent from './bound-component';
 
 export default class QuestionClosed extends BoundComponent {
-  render({presentation, state}) {
+  render({ presentation, state }) {
     let className = 'question-closed';
 
     if (state) {
@@ -35,7 +35,7 @@ export default class QuestionClosed extends BoundComponent {
           <div class="question-closed__sides">
             <div class="question-closed__front">
               <div class="question-closed__front-inner">
-              { presentation ? 'Question closed' : 'Waiting for results' }</div>
+              {presentation ? 'Question closed' : 'Waiting for results'}</div>
             </div>
             <div class="question-closed__back"></div>
           </div>

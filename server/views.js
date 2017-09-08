@@ -16,18 +16,18 @@
 */
 import fs from 'fs';
 
-import {h} from 'preact';
+import { h } from 'preact';
 import render from 'preact-render-to-string';
 
 import promisify from './promisify';
 import indexTemplate from './templates/index';
 import mongoose from './mongoose-db';
 import App from './shared/components/app';
-import {naiveLoginAllowed} from './user/models';
-import {simpleUserObject} from './user/views';
-import {quiz} from './quiz/views';
-import {escapeJSONString} from './utils';
-import {longPollers} from './long-pollers/views';
+import { naiveLoginAllowed } from './user/models';
+import { simpleUserObject } from './user/views';
+import { quiz } from './quiz/views';
+import { escapeJSONString } from './utils';
+import { longPollers } from './long-pollers/views';
 
 const readFile = promisify(fs, 'readFile');
 
@@ -48,14 +48,16 @@ function getInitialState(req) {
 
   if (quiz.activeQuestions && req.user) {
     const tracks = ['all', 'css', 'js'];
-    for(let i=0; i< tracks.length; i++ ){
+    for (let i = 0; i < tracks.length; i++) {
       let track = tracks[i];
       let userAnswers = {};
-      if (quiz.activeQuestions[track]){
-        userAnswers[track] = req.user.answers.find(a => a.questionId.equals(quiz.activeQuestions[track].question._id));
+      if (quiz.activeQuestions[track]) {
+        userAnswers[track] = req.user.answers.find((a) => a.questionId.equals(quiz.activeQuestions[track].question._id));
         if (userAnswers[track]) {
-          if(!initialState.answersSubmitted) initialState.answersSubmitted = {};
-            initialState.answersSubmitted[track] = quiz.activeQuestions[track].question.answers.map((_, i) => userAnswers[track].choices.includes(i));
+          if (!initialState.answersSubmitted) {
+            initialState.answersSubmitted = {};
+          }
+          initialState.answersSubmitted[track] = quiz.activeQuestions[track].question.answers.map((_, k) => userAnswers[track].choices.includes(k));
         }
       }
     }
@@ -75,7 +77,7 @@ export async function home(req, res) {
     indexTemplate({
       content: render(<App initialState={initialState} server={true} />),
       title: 'The Big Web Quiz. CSS-Minsk-JS Edition.',
-      inlineCss: await readFile(`${__dirname}/static/css/index-inline.css`), 
+      inlineCss: await readFile(`${__dirname}/static/css/index-inline.css`),
       scripts: ['/static/js/main.js'],
       lazyCss: ['/static/css/index.css'],
       initialState: escapeJSONString(JSON.stringify(initialState))
@@ -109,7 +111,7 @@ export function dbJson(req, res) {
   const types = req.query.types;
 
   if (!types || !Array.isArray(types)) {
-    res.json({err: 'No type set'});
+    res.json({ err: 'No type set' });
     return;
   }
 
@@ -117,7 +119,7 @@ export function dbJson(req, res) {
 
   for (const name of types) {
     if (!names.includes(name)) {
-      res.json({err: `Type "${name}" unknown`});
+      res.json({ err: `Type "${name}" unknown` });
       return;
     }
   }
@@ -125,7 +127,7 @@ export function dbJson(req, res) {
   for (const name of types) {
     const model = mongoose.connection.model(name);
     promises.push(
-      model.find().then(docs => {
+      model.find().then((docs) => {
         output[name] = docs;
       })
     );
@@ -133,8 +135,8 @@ export function dbJson(req, res) {
 
   Promise.all(promises).then(() => {
     res.json(output);
-  }).catch(err => {
-    res.status(500).json({err: err.message});
+  }).catch((err) => {
+    res.status(500).json({ err: err.message });
     throw err;
   });
 }
@@ -150,9 +152,9 @@ export function dbSetJson(req, res) {
   }
 
   Promise.all(promises).then(() => {
-    res.json({ok: true});
-  }).catch(err => {
-    res.status(500).json({err: err.message});
+    res.json({ ok: true });
+  }).catch((err) => {
+    res.status(500).json({ err: err.message });
     throw err;
   });
 }
