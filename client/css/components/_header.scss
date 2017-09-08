@@ -22,13 +22,14 @@
   align-items: center;
   z-index: 1;
   position: relative;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid #222;
 
   & .title {
     line-height: 1;
     font-size: 22px;
-    color: #FFFFFF;
+    color: $primary-color;
     flex: 1;
+    padding-right: 45px;
   }
 
   & .login-status {

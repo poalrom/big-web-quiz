@@ -16,29 +16,24 @@
  */
 
 
+/* latin */
 @font-face {
-  font-family: 'Roboto';
-  font-style: normal;
-  font-weight: 300;
-  src: local('Roboto Light'), local('Roboto-Light'), url(https://fonts.gstatic.com/s/roboto/v15/Hgo13k-tfSpn0qi1SFdUfbO3LdcAZYWl9Si6vvxL-qU.woff) format('woff');
-}
-
-@font-face {
-  font-family: 'Roboto';
+  font-family: 'PTSans';
   font-style: normal;
   font-weight: 400;
-  src: local('Roboto'), local('Roboto-Regular'), url(https://fonts.gstatic.com/s/roboto/v15/CrYjSnGjrRCn0pd9VQsnFOvvDin1pK8aKteLpeZ5c0A.woff) format('woff');
+  src: local('PTSans'), local('PTSans-Regular'), url(https://fonts.gstatic.com/s/ptsans/v8/ATKpv8nLYAKUYexo8iqqrg.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215;
 }
-
 @font-face {
-  font-family: 'Roboto';
+  font-family: 'PTSans';
   font-style: normal;
   font-weight: 700;
-  src: local('Roboto Bold'), local('Roboto-Bold'), url(https://fonts.gstatic.com/s/roboto/v15/d-6IYplOFocCacKzxwXSOLO3LdcAZYWl9Si6vvxL-qU.woff) format('woff');
+  src: local('PTSansBold'), local('PTSans-Bold'), url(https://fonts.gstatic.com/s/ptsans/v8/0XxGQsSc1g4rdRdjJKZrNPk_vArhqVIZ0nv9q090hN8.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215;
 }
 
 html {
-  font-family: Roboto, sans-serif;
+  font-family: PT Sans, sans-serif;
   color: #fff;
   font-size: 15px;
   line-height: 1.9;
@@ -58,7 +53,6 @@ button,
 input[type=button] {
   cursor: pointer;
   background: $button-color;
-  border-radius: 3px;
   border: none;
   font-size: 18px;
   color: #FFFFFF;
@@ -85,12 +79,12 @@ input[type=button][disabled] {
 }
 
 .privacy {
-  color: #FFF;
+  color: #aaa;
   font-size: 13px;
   opacity: 0.75;
   text-align: center;
   width: 100%;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(10, 10, 10, 0.7);
   padding: 4px;
   box-sizing: border-box;
 }
@@ -106,5 +100,6 @@ input[type=button][disabled] {
 
 .main-content {
   min-height: 100vh;
-  background-image: linear-gradient(-200deg, #220065 0%, #2b546d 100%);
+  background-image: linear-gradient(-200deg, #000 0%, #333 100%);
+
 }

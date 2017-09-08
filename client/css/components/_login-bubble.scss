@@ -30,6 +30,7 @@
     will-change: transform;
     transition: transform 0.3s cubic-bezier(0, 0, 0.3, 1);
     transform: translate(0, -99.9%); // 99.99 to fix iOS animation issue
+    border: 4px solid $primary-color;
   }
 
   &.active {
@@ -55,7 +56,7 @@
     content: '';
     display: block;
     border-color: rgba(0, 0, 0, 0);
-    border-bottom-color: #fff;
+    border-bottom-color: $primary-color;
     border-style: dashed dashed solid;
     border-width: 0 8.5px 8.5px;
     position: absolute;
@@ -71,7 +72,6 @@
 .login-bubble-frame {
   background: #fff;
   color: #000;
-  border-radius: 3px;
 }
 
 .login-bubble-profile {
@@ -89,7 +89,7 @@
   .leaderboard-toggle {
     padding: 8px 0 0 0;
     margin: 12px 0 0 0;
-    border-top: 1px solid #AAA;
+    border-top: 1px solid $primary-color;
   }
 }
 

@@ -30,8 +30,8 @@ import {
   dbSetJson
 } from './views';
 import {
-  userMiddleware, generateAuthUrl, handleLogin, 
-  login, logoutRedirect, logoutJson, userJson, 
+  userMiddleware, generateAuthUrl, handleLogin,
+  login, logoutRedirect, logoutJson, userJson,
   updateUser, requiresLogin, requiresLoginJson, requiresAdminHtml,
   requiresAdminJson, questionAnswerJson, deleteUserAnswersJson,
   deleteUsersJson, getTopUsersJson, setLeaderboardBanJson,
@@ -43,18 +43,19 @@ import {
   deactivateQuestionJson, presentationListen,
   showLeaderboardJson, hideLeaderboardJson,
   liveResultsQuestionJson, showVideoJson,
-  showBlackoutJson, hideBlackoutJson, setEndScreen
+  showBlackoutJson, hideBlackoutJson, setEndScreen,
+  showSplitTracksJson, hideSplitTracksJson
 } from './quiz/views';
-import {longPoll} from './long-pollers/views';
+import { longPoll } from './long-pollers/views';
 import mongoose from './mongoose-db';
 import connectMongo from 'connect-mongo';
 const MongoStore = connectMongo(session);
 
-import {cookieSecret} from './settings'; 
-import {production} from './utils';
+import { cookieSecret } from './settings';
+import { production } from './utils';
 
 const app = express();
-const router = express.Router({
+const router = new express.Router({
   caseSensitive: true,
   strict: true
 });
@@ -67,7 +68,7 @@ router.use(
   })
 );
 
-['presentation-sw.js'].forEach(jsUrl => {
+['presentation-sw.js'].forEach((jsUrl) => {
   router.use(
     `/${jsUrl}`,
     gzipStatic(__dirname + `/static/js/${jsUrl}`, {
@@ -117,7 +118,7 @@ router.post('/naive-login', naiveLogin);
 router.post('/update-me.json', requiresLoginJson, updateUser);
 router.post('/question-answer.json', requiresLoginJson, questionAnswerJson);
 
-const adminRouter = express.Router({
+const adminRouter = new express.Router({
   caseSensitive: true,
   strict: true
 });
@@ -128,7 +129,7 @@ const adminCors = cors({
       return;
     }
     const u = url.parse(origin);
-    cb(null, u.hostname == 'localhost' || u.hostname == '127.0.0.1');
+    cb(null, u.hostname === 'localhost' || u.hostname === '127.0.0.1');
   },
   maxAge: 60 * 60 * 24,
   allowedHeaders: ['Content-Type'],
@@ -150,6 +151,8 @@ adminRouter.post('/admin/show-leaderboard.json', showLeaderboardJson);
 adminRouter.post('/admin/hide-leaderboard.json', hideLeaderboardJson);
 adminRouter.post('/admin/show-blackout.json', showBlackoutJson);
 adminRouter.post('/admin/hide-blackout.json', hideBlackoutJson);
+adminRouter.post('/admin/show-split-tracks.json', showSplitTracksJson);
+adminRouter.post('/admin/hide-split-tracks.json', hideSplitTracksJson);
 adminRouter.post('/admin/allow-naive-login.json', allowNaiveLogin);
 adminRouter.post('/admin/disallow-naive-login.json', disallowNaiveLogin);
 adminRouter.post('/admin/show-video.json', showVideoJson);

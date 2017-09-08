@@ -26,7 +26,7 @@
   .message {
     flex: 1;
     font-size: 18px;
-    color: #00BFA3;
+    color: #666;
     margin: 0;
   }
 }
@@ -43,13 +43,13 @@
     opacity: 0.69;
     font-weight: 300;
     font-size: 20px;
-    color: #FFFFFF;
+    color: #fff;
   }
 
   &__value {
     font-weight: 700;
     font-size: 130px;
-    color: #FFFFFF;
+    color: $primary-color;
     margin: 0;
     padding: 0;
     text-align: center;

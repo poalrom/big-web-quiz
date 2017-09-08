@@ -19,12 +19,15 @@ import {h, render} from 'preact';
 import {Login, Logout} from './user';
 import BoundComponent from './bound-component';
 import Intro from './intro';
+import TracksTabs from './tracks-tabs';
 import QuestionWaiting from './question-waiting';
 import LoginStatus from './login-status';
 import Question from './question';
 import Transition from './transition';
 import EndScreen from './end-screen';
 import LongPoll from '../long-poll';
+
+const UPDATE_USER_TRACK_ACTION = '/update-me.json';
 
 export default class App extends BoundComponent {
   constructor(props) {
@@ -33,18 +36,25 @@ export default class App extends BoundComponent {
     // {
     //   user: see simpleUserObject in server/user/views.js,
     //   lastMessageTime: Number, // the last message time sent to long-pollers
-    //   question: {
-    //     id: String,
-    //     text: String,
-    //     code: String, // optional code example
-    //     multiple: Boolean, // accept multiple choices
-    //     answers: [{text: String}]
-    //   },
-    //   questionClosed: Boolean,
+    //   activeQuestions: {
+    //     all: {
+    //       question: {
+    //         id: String,
+    //         text: String,
+    //         code: String, // optional code example
+    //         multiple: Boolean, // accept multiple choices
+    //         answers: [{text: String}]
+    //       }, 
+    //       stage: String, in [acceptingAnswers, revealingAnswers, showingLiveResults, showingLiveResultsAll]
+    //     },
+    //     css: {question},
+    //     js: {question}
+    //   }
     //   naiveLoginAllowed: Boolean,
     //   showEndScreen: Boolean,
-    //   correctAnswers: [Number],
-    //   answersSubmitted: [Number], answers the user submitted for the question
+    //   showingSplitTracks: Boolean,
+    //   correctAnswers: {all: [Number], css, js},
+    //   answersSubmitted: {all: [Number], css, js}, answers the user submitted for the question
     // }
     this.state = props.initialState;
 
@@ -53,49 +63,62 @@ export default class App extends BoundComponent {
       window.load.then(() => {
         requestAnimationFrame(() => {
           const longPoll = new LongPoll(props.initialState.lastMessageTime);
-
-          longPoll.on('message', msg => {
-            if (msg.correctAnswers) { // update the score
-              // TODO: change view while this is updating?
-              fetch('/me.json', {
-                credentials: 'include'
-              }).then(r => r.json()).then(data => {
-                this.setState({user: data.user});
-              });
-            }
-            // Is question changing?
-            if (msg.question && (!this.state.question || this.state.question.id != msg.question.id)) {
-              // Reset submitted questions
-              msg.answersSubmitted = [];
-            }
-            this.setState(msg);
+          longPoll.on('message', (msg) => {
+            // Update user data to check answers and results
+            fetch('/me.json', {
+              credentials: 'include'
+            }).then((r) => r.json()).then((data) => {
+              this.setState(Object.assign({}, msg, { user: data.user }));
+            });
           });
-        })
+        });
       });
     }
   }
   onUserUpdate(user) {
-    this.setState({user});
+    this.setState({ user });
   }
   onLogout() {
     this.setState({
       user: null
     });
   }
-  render({server}, {user, question, questionClosed, correctAnswers, answersSubmitted, naiveLoginAllowed, showEndScreen}) {
+
+  async onChangeTrack(ev) {
+    try {
+      const response = await fetch(UPDATE_USER_TRACK_ACTION, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ track: ev.target.value })
+      });
+
+      const data = await response.json();
+
+      if (data.err) {
+        throw Error(data.err);
+      }
+
+      this.onUserUpdate(data.user);
+    } catch (err) {
+      // TODO: toast?
+      throw err;
+    }
+  }
+  render({ server }, { user, activeQuestions, correctAnswers, naiveLoginAllowed, showingSplitTracks }) {
+    const userTrack = showingSplitTracks ? user.track : 'all';
+    const question = activeQuestions[userTrack];
     // Question: OPEN
     const shouldShowQuestion = (question && !server) ||
-
-      // Question: CLOSED
-      (question && questionClosed) ||
-
-      // Question: REVEALED
-      (question && questionClosed && correctAnswers && correctAnswers.length);
+          // Question: CLOSED
+          (question && question.questionClosed) ||
+          // Question: REVEALED
+          (question && question.questionClosed && correctAnswers[userTrack] && correctAnswers[userTrack].length);
 
     return (
       <div class="app">
         <header class="page-header">
-          <div class="title">The Big Web Quiz</div>
+          <div class="title">The Big Web Quiz. CSS-Minsk-JS Edition</div>
           <LoginStatus
             server={server}
             user={user}
@@ -104,38 +127,43 @@ export default class App extends BoundComponent {
           />
         </header>
         <div class="container">
-          {showEndScreen ?
-            <EndScreen />
-            :
-            (user ?
-              (shouldShowQuestion?
-                <Question
-                  key={`question-${question.id}`}
-                  id={question.id}
-                  title={question.title}
-                  text={question.text}
-                  multiple={question.multiple}
-                  answers={question.answers}
-                  code={question.code}
-                  codeType={question.codeType}
-                  closed={questionClosed}
-                  correctAnswers={correctAnswers}
-                  answersSubmitted={answersSubmitted}
-                />
-                :
-                <QuestionWaiting
-                  key="question-waiting"
-                  user={user}
-                  server={server}
-                  onUserUpdate={this.onUserUpdate}
-                />
-              )
+          {user ?
+              (<div class="container-wrap">
+                {showingSplitTracks ?
+                  <TracksTabs
+                    user={user}
+                    onChangeTrack={this.onChangeTrack}
+                  /> : ''
+                }
+                {shouldShowQuestion ?
+                  <Question
+                    key={`question-${question.id}`}
+                    id={question.id}
+                    title={question.title}
+                    text={question.text}
+                    multiple={question.multiple}
+                    answers={question.answers}
+                    code={question.code}
+                    codeType={question.codeType}
+                    closed={question.questionClosed}
+                    correctAnswers={correctAnswers}
+                    answersSubmitted={user.answers}
+                    track={question.track}
+                  />
+                  :
+                  <QuestionWaiting
+                    key="question-waiting"
+                    user={user}
+                    server={server}
+                    onUserUpdate={this.onUserUpdate}
+                  />
+                }
+              </div>)
               :
               <Intro key="intro" naiveLoginAllowed={naiveLoginAllowed}/>
-            )
           }
         </div>
-        <a class="privacy" href="https://www.google.com/policies">Google Privacy Policy and Terms of Service</a>
+        <a class="privacy" href="https://github.com/CSS-Minsk-JS/big-web-quiz" target="_blank">Forked from The Big Web Quiz by Google</a>
         {server &&
           <div class="img-preloads">
             <img src="/static/images/ic_check_circle_black_24px.svg" alt=""/>

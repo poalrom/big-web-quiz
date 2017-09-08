@@ -43,23 +43,24 @@ export default class LeaderboardToggle extends BoundComponent {
       const response = await fetch(UPDATE_USER_FORM_ACTION, {
         method: 'POST',
         credentials: 'include',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({optIntoLeaderboard: event.target.checked})
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ optIntoLeaderboard: event.target.checked })
       });
 
       const data = await response.json();
 
-      if (data.err) throw Error(data.err);
+      if (data.err) {
+        throw Error(data.err);
+      }
 
       this.props.onUserUpdate(data.user);
-    }
-    catch (err) {
+    } catch (err) {
       // TODO: toast?
       throw err;
     }
-    this.setState({leaderboardPending: false});
+    this.setState({ leaderboardPending: false });
   }
-  render(props, {leaderboardPending, checked}) {
+  render(props, { leaderboardPending, checked }) {
     return (
       <form class="leaderboard-toggle" action={UPDATE_USER_FORM_ACTION} method="POST">
         <label>
@@ -79,5 +80,5 @@ export default class LeaderboardToggle extends BoundComponent {
 }
 
 LeaderboardToggle.defaultProps = {
-  onUserUpdate: function(){}
+  onUserUpdate: function() {}
 };

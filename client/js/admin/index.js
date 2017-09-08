@@ -32,6 +32,7 @@ class App extends BoundComponent {
       showingLeaderboard: props.showingLeaderboard,
       showingVideo: props.showingVideo,
       showingBlackout: props.showingBlackout,
+      showingSplitTracks: props.showingSplitTracks,
       naiveLoginAllowed: props.naiveLoginAllowed,
       showingEndScreen: props.showingEndScreen,
       addingQuestion: false,
@@ -196,6 +197,42 @@ class App extends BoundComponent {
       throw err;
     }
   }
+  async onShowSplitTracks() {
+    try {
+      const response = await fetch(`/admin/show-split-tracks.json`, {
+        method: 'POST',
+        credentials: 'include'
+      });
+
+      const data = await response.json();
+
+      if (data.err) throw Error(data.err);
+
+      this.setState(data);
+    }
+    catch (err) {
+      // TODO
+      throw err;
+    }
+  }
+  async onHidesSplitTracks() {
+    try {
+      const response = await fetch(`/admin/hide-split-tracks.json`, {
+        method: 'POST',
+        credentials: 'include'
+      });
+
+      const data = await response.json();
+
+      if (data.err) throw Error(data.err);
+
+      this.setState(data);
+    }
+    catch (err) {
+      // TODO
+      throw err;
+    }
+  }
   async onAllowNaiveLoginClick() {
     const response = await fetch(`/admin/allow-naive-login.json`, {
       method: 'POST',
@@ -310,7 +347,7 @@ class App extends BoundComponent {
 
   render(props, {
     questions, addingQuestion, editingQuestions, showingLeaderboard,
-    outputValue, view, showingVideo, showingBlackout, naiveLoginAllowed,
+    outputValue, view, showingVideo, showingBlackout, showingSplitTracks, naiveLoginAllowed,
     showingEndScreen
   }) {
     return <div>
@@ -343,11 +380,6 @@ class App extends BoundComponent {
             <QuestionUpdate onQuestionSaved={this.onQuestionSaved}/>
             :
             <div class="admin__questions-add">
-              {showingEndScreen ?
-                <button onClick={this.onHideEndScreenClick}>Hide End Screen</button>
-                :
-                <button onClick={this.onShowEndScreenClick}>Show End Screen</button>
-              }
 
               {naiveLoginAllowed ?
                 <button onClick={this.onDisallowNaiveLoginClick}>Disable naive login</button>
@@ -359,15 +391,10 @@ class App extends BoundComponent {
                 :
                 <button onClick={this.onShowBlackoutClick}>Show blackout</button>
               }
-              {showingVideo == 'intro' ?
-                <button onClick={() => this.showVideo('')}>Hide intro</button>
+              {showingSplitTracks ?
+                <button onClick={this.onHidesSplitTracks}>Merge tracks</button>
                 :
-                <button onClick={() => this.showVideo('intro')}>Show intro</button>
-              }
-              {showingVideo == 'prize' ?
-                <button onClick={() => this.showVideo('')}>Hide prize</button>
-                :
-                <button onClick={() => this.showVideo('prize')}>Show prize</button>
+                <button onClick={this.onShowSplitTracks}>Split tracks</button>
               }
               <button onClick={this.onAddQuestionClick}>Add question</button>
             </div>
@@ -387,6 +414,7 @@ class App extends BoundComponent {
                       multiple={question.multiple}
                       scored={question.scored}
                       priority={question.priority}
+                      track={question.track}
                       answers={question.answers}
                       onQuestionSaved={this.onQuestionSaved}
                       onQuestionRemoved={this.onQuestionRemoved}
@@ -426,6 +454,10 @@ class App extends BoundComponent {
                     <tr>
                       <td>Priority:</td>
                       <td>{String(question.priority)}</td>
+                    </tr>
+                    <tr>
+                      <td>Track:</td>
+                      <td>{String(question.track)}</td>
                     </tr>
                     <tr>
                       <td>Answers:</td>
@@ -508,6 +540,7 @@ fetch('/admin/initial-state.json', {
     showingLeaderboard={data.showingLeaderboard}
     showingVideo={data.showingVideo}
     showingBlackout={data.showingBlackout}
+    showingSplitTracks={data.showingSplitTracks}
     naiveLoginAllowed={data.naiveLoginAllowed}
     showingEndScreen={data.showingEndScreen} />, main);
 });

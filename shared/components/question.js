@@ -19,7 +19,8 @@ import {h} from 'preact';
 import BoundComponent from './bound-component';
 import Code from './code';
 import QuestionSpinner from './question-spinner';
-import QuestionClosed from './question-closed'
+import QuestionClosed from './question-closed';
+import { getDefaultTracksObject } from '../utils';
 
 export default class Question extends BoundComponent {
   constructor(props) {
@@ -29,16 +30,16 @@ export default class Question extends BoundComponent {
     this.form = null;
 
     this.state = {
-      answersChecked: props.answersSubmitted || [],
-      answersSubmitted: props.answersSubmitted || [],
+      answersChecked: props.answersSubmitted || getDefaultTracksObject([], [], []),
+      answersSubmitted: props.answersSubmitted || getDefaultTracksObject([], [], []),
       spinnerState: '',
-      submittedAnswersThisSession: false
+      submittedAnswersThisSession: !!props.answersSubmitted && !!props.answersSubmitted[props.track] && props.answersSubmitted[props.track].length
     };
   }
   componentWillReceiveProps(newProps) {
-    if (this.props.id != newProps.id) {
+    if (this.props.id !== newProps.id) {
       this.setState({
-        answersChecked: [],
+        answersChecked: Object.assign({}, getDefaultTracksObject([])),
         submittedAnswersThisSession: false
       });
     }
@@ -60,11 +61,11 @@ export default class Question extends BoundComponent {
       const response = await fetch(this.formAction, {
         method: 'POST',
         credentials: 'include',
-        headers: {'Content-Type': 'application/json'},
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           id: this.props.id,
           // becomes an array of indexes checked
-          choices: answersChecked.reduce((arr, choiceChecked, i) => {
+          choices: answersChecked[this.props.track].reduce((arr, choiceChecked, i) => {
             if (choiceChecked) {
               arr.push(i);
             }
@@ -75,9 +76,10 @@ export default class Question extends BoundComponent {
 
       const data = await response.json();
 
-      if (data.err) throw Error(data.err);
-    }
-    catch (err) {
+      if (data.err) {
+        throw Error(data.err);
+      }
+    } catch (err) {
       this.setState({
         spinnerState: '',
         submittedAnswersThisSession: false
@@ -93,24 +95,26 @@ export default class Question extends BoundComponent {
     });
   }
   onChoiceChange() {
+    let answersChecked = {};
+    answersChecked[this.props.track] = Array.from(
+      this.form.querySelectorAll('input[name=answer]')
+    ).map((el) => el.checked);
     this.setState({
       submittedAnswersThisSession: false,
-      answersChecked: Array.from(
-        this.form.querySelectorAll('input[name=answer]')
-      ).map(el => el.checked)
-    })
+      answersChecked: Object.assign({}, this.state.answersChecked, answersChecked)
+    });
   }
   render({
     id, title, text, multiple, answers, closed,
     showLiveResults, correctAnswers, code,
-    codeType, presentation
+    codeType, presentation, track
   }, {
     answersChecked, answersSubmitted, spinnerState,
     submittedAnswersThisSession
   }) {
     const codeEl = code && <Code code={code} codeType={codeType}></Code>;
-
-    const answersToCheck = closed ? answersSubmitted : answersChecked;
+    const answersToCheck = closed ? answersSubmitted[track] : answersChecked[track];
+    const hasAnswer = !!answersChecked && !!answersChecked[track] && answersChecked[track].indexOf(true) > -1;
 
     return (
       <section class={
@@ -131,16 +135,16 @@ export default class Question extends BoundComponent {
           </div>
         }
         <form
-          class={(closed || showLiveResults) && (!correctAnswers) ? 'question__form question__form--closed' : 'question__form'}
+          class={(closed || showLiveResults) && (!correctAnswers[track]) ? 'question__form question__form--closed' : 'question__form'}
           onSubmit={this.onSubmit}
           action={this.formAction}
           method="POST"
-          ref={el => this.form = el}>
+          ref={(el) => this.form = el}>
           <div class="question__container">
             <h1 class="question__title">{title}</h1>
             <p class="question__text">{text}</p>
             {codeEl}
-            <div class={`question__answer-container ${(answers.length == 4 && code) ? 'presentation-answer-grid' : ''}`}>
+            <div class={`question__answer-container ${(answers.length === 4 && code) ? 'presentation-answer-grid' : ''}`}>
               {answers.map((answer, i) =>
                 <div class={
                   closed ?
@@ -152,14 +156,14 @@ export default class Question extends BoundComponent {
                     type={multiple ? 'checkbox' : 'radio'}
                     name="answer"
                     value={i}
-                    checked={answersToCheck[i]}
+                    checked={(answersToCheck || [])[i]}
                     disabled={closed}
                     onChange={this.onChoiceChange}
                   />
                   <label
                     for={`question-${id}-answer-${i}`}
-                    class={correctAnswers ?
-                      (correctAnswers.includes(i) ?
+                    class={(correctAnswers && correctAnswers[track]) ?
+                      (correctAnswers[track].includes(i) ?
                         'question__answer-label question__answer-label--correct' :
                         'question__answer-label question__answer-label--incorrect')
                     : 'question__answer-label'}>
@@ -176,7 +180,7 @@ export default class Question extends BoundComponent {
                         'question__submitted-answer question__submitted-answer--success' :
                         'question__submitted-answer'
                     }>Answer submitted</div>
-                    <button disabled={closed || spinnerState || (answersChecked.length === 0 && !multiple)} class={
+                    <button disabled={closed || spinnerState || !hasAnswer} class={
                       spinnerState ?
                         'question__submit question__submit--pending' :
                         'question__submit'
@@ -188,7 +192,7 @@ export default class Question extends BoundComponent {
           </div>
         </form>
         { !presentation &&
-          <QuestionClosed presentation={presentation} state={closed && (!correctAnswers)}/>
+          <QuestionClosed presentation={presentation} state={closed && (!correctAnswers[track])}/>
         }
 
       </section>

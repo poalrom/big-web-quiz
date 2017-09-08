@@ -19,7 +19,7 @@ import BoundComponent from './bound-component';
 import LeaderboardToggle from './leaderboard-toggle';
 
 export default class QuestionWaiting extends BoundComponent {
-  render({server, onUserUpdate, user}) {
+  render({ server, onUserUpdate, user }) {
     return (
       <div class="question-waiting">
         <div class="your-score">
@@ -59,5 +59,5 @@ export default class QuestionWaiting extends BoundComponent {
 }
 
 QuestionWaiting.defaultProps = {
-  onUserUpdate: function(){}
+  onUserUpdate: function() {}
 };

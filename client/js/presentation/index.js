@@ -25,6 +25,7 @@ import Audio from './components/audio';
 import Question from '../../../shared/components/question';
 import AverageValue from './components/average-value';
 import BoundComponent from '../../../shared/components/bound-component';
+import { getDefaultTracksObject } from '../../../shared/utils';
 
 const colors = [
   '#47DDBE',
@@ -43,25 +44,32 @@ class App extends BoundComponent {
       showIntro: false
     };
 
+    const trackParam = location.search.split('track=')[1];
+    this.track = (trackParam === 'css' || trackParam === 'js') ? trackParam : 'all';
+
     const eventSource = new EventSource('/presentation/listen');
-    eventSource.onmessage = event => {
+    eventSource.onmessage = (event) => {
       const data = JSON.parse(event.data);
 
       // Is this a new question?
-      if (data.question && (!this.state.question || data.question.id != this.state.question.id)) {
+      if (data.activeQuestions && data.activeQuestions[this.track] && (!this.state.activeQuestions || !this.state.activeQuestions[this.track] || data.activeQuestions[this.track].id !== this.state.activeQuestions[this.track].id)) {
         // Random order to display answers
-        data.answerDisplayOrder = shuffle(data.question.answers.map((_, i) => i));
-        data.averages = data.averages || Array(data.question.answers.length).fill(0);
+        data.answerDisplayOrder = shuffle(data.activeQuestions[this.track].answers.map((_, i) => i));
+        if (!data.averages) {
+          data.averages = {};
+        }
+        data.averages[this.track] = data.averages[this.track] || Array(data.activeQuestions[this.track].answers.length).fill(0);
       }
 
       this.setState(data);
     };
   }
-  update(prevProps={}, prevState={}) {
-    if (this.state.showVideo == 'intro' && prevState.showVideo != 'intro') {
-      if (this.introVideo) this.introVideo.play();
-    }
-    else if (!this.state.showVideo == 'intro' && prevState.showVideo == 'intro') {
+  update(prevProps = {}, prevState = {}) {
+    if (this.state.showVideo === 'intro' && prevState.showVideo !== 'intro') {
+      if (this.introVideo) {
+        this.introVideo.play();
+      }
+    } else if (!this.state.showVideo === 'intro' && prevState.showVideo === 'intro') {
       setTimeout(() => {
         if (this.introVideo) {
           this.introVideo.pause();
@@ -70,10 +78,11 @@ class App extends BoundComponent {
       }, 1000);
     }
 
-    if (this.state.showVideo == 'prize' && prevState.showVideo != 'prize') {
-      if (this.prizeVideo) this.prizeVideo.play();
-    }
-    else if (!this.state.showVideo == 'prize' && prevState.showVideo == 'prize') {
+    if (this.state.showVideo === 'prize' && prevState.showVideo !== 'prize') {
+      if (this.prizeVideo) {
+        this.prizeVideo.play();
+      }
+    } else if (!this.state.showVideo === 'prize' && prevState.showVideo === 'prize') {
       setTimeout(() => {
         if (this.prizeVideo) {
           this.prizeVideo.pause();
@@ -85,8 +94,8 @@ class App extends BoundComponent {
   componentDidMount() {
     this.update();
 
-    document.addEventListener('keyup', event => {
-      if (event.key == 'f') {
+    document.addEventListener('keyup', (event) => {
+      if (event.key === 'f') {
         event.preventDefault();
         document.documentElement.webkitRequestFullscreen();
       }
@@ -95,7 +104,12 @@ class App extends BoundComponent {
   componentDidUpdate(prevProps, prevState) {
     this.update(prevProps, prevState);
   }
-  render(props, {question, questionClosed, correctAnswers, answerDisplayOrder, averages, leaderboard, showLiveResults, showVideo, showBlackout}) {
+  render(props, { activeQuestions, correctAnswers, answerDisplayOrder, averages, leaderboard, showBlackout }) {
+
+    if (!activeQuestions) {
+      activeQuestions = getDefaultTracksObject();
+    }
+
     if (leaderboard) {
       let type = 0;
       let position = 1;
@@ -140,32 +154,18 @@ class App extends BoundComponent {
       );
     }
 
-    if (!question) {
+    if (!activeQuestions[this.track]) {
       return (
         <div>
-          <img src="/static/images/title.png" class="opening-media opening-media--show"/>
+          <img src={`/static/images/title-${this.track}.png`} class="opening-media opening-media--show"/>
           <div class={`blackout ${showBlackout ? 'blackout--show' : ''}`}/>
-          <div class={`opening-media ${showVideo == 'intro' ? 'opening-media--show' : ''}`}>
-            <video
-              ref={el => this.introVideo = el}
-              class="opening-media__src" src="/static/video/intro.mp4"
-              preload
-            />
-          </div>
-          <div class={`opening-media ${showVideo == 'prize' ? 'opening-media--show' : ''}`}>
-            <video
-              ref={el => this.prizeVideo = el}
-              class="opening-media__src" src="/static/video/prize.mp4"
-              loop
-              preload
-            />
-          </div>
         </div>
       );
     }
 
+    const question = activeQuestions[this.track];
     return (
-      <Audio key="the-amaze-audio" closed={questionClosed} stepItUp={showLiveResults}>
+      <Audio key="the-amaze-audio" closed={question.questionClosed} stepItUp={question.showLiveResults}>
         <Question
           key={`question-${question.id}`}
           id={question.id}
@@ -175,21 +175,22 @@ class App extends BoundComponent {
           answers={question.answers}
           code={question.code}
           codeType={question.codeType}
-          closed={questionClosed}
+          closed={question.questionClosed}
           correctAnswers={correctAnswers}
-          showLiveResults={showLiveResults}
+          showLiveResults={question.showLiveResults}
           presentation={true}
+          track={question.track}
         />
 
-        {showLiveResults && answerDisplayOrder && !correctAnswers ?
+        {question.showLiveResults && answerDisplayOrder && !correctAnswers[this.track] ?
           <div class="live-results">
             {answerDisplayOrder.map((i, j) =>
               <AverageValue
                 color={colors[j % colors.length]}
-                questionClosed={questionClosed}
+                questionClosed={question.questionClosed}
                 text={question.answers[i].text}
                 key={`avg-${question.id}-answer-${i}`}
-                targetValue={averages[i]} />
+                targetValue={averages[this.track][i]} />
             )}
           </div>
           : ''

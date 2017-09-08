@@ -15,14 +15,15 @@
 * limitations under the License.
 */
 import mongoose from '../mongoose-db';
+import { getDefaultTracksObject, tracks } from '../shared/utils';
 
 const questionSchema = mongoose.Schema({
   // Human readable ID
-  key: {type: String, index: true, unique: true, required: true},
-  // Short title of the question, eg "Question 1"
-  title: {type: String, required: true, default: "Question!"},
+  key: { type: String, index: true, unique: true, required: true },
+  // Short title of the question, eg 'Question 1'
+  title: { type: String, required: true, default: 'Question!' },
   // The actual question
-  text: {type: String, required: true},
+  text: { type: String, required: true },
   // Answers can optionally have a code example
   code: String,
   // So syntax highlighting can do the right thing
@@ -30,93 +31,102 @@ const questionSchema = mongoose.Schema({
   // User can select multiple answers (checkboxes rather than radios)
   multiple: Boolean,
   // Scored? Questions can be non-scored for simple polls
-  scored: {type: Boolean, default: true},
+  scored: { type: Boolean, default: true },
   // Shove it to the top of the list in admin view?
-  priority: {type: Boolean, default: false, index: true},
+  priority: { type: Boolean, default: false, index: true },
   // Array of answers
   answers: [{
-    text: {type: String, required: true},
+    text: { type: String, required: true },
     correct: Boolean
-  }]
+  }],
+  // Type of question to split to a few tracks
+  track: {
+    type: String,
+    default: 'all'
+  }
 });
 
 export const Question = mongoose.model('Question', questionSchema);
 
 export class Quiz {
   constructor() {
-    this._activeQuestion = null;
-    this._acceptingAnswers = false;
-    this._revealingAnswers = false;
+    this._activeQuestions = getDefaultTracksObject();
     this._showingLeaderboard = false;
-    this._showingLiveResults = false;
-    this._cachedUserAnswers = {};
+    this._cachedUserAnswers = getDefaultTracksObject({}, {}, {});
     this.showingVideo = '';
     this.showingBlackout = false;
+    this.showingSplitTracks = false;
     this.showingEndScreen = false;
   }
-  get activeQuestion() {
-    return this._activeQuestion;
+  get activeQuestions() {
+    return this._activeQuestions;
   }
-  get acceptingAnswers() {
-    return this._acceptingAnswers;
+  getActiveQuestion(track = 'all') {
+    return this._activeQuestions[track] && this._activeQuestions[track].question;
   }
-  get revealingAnswers() {
-    return this._revealingAnswers;
+  isAcceptingAnswers(track = 'all') {
+    return this._activeQuestions[track] && (['acceptingAnswers', 'showingLiveResults'].indexOf(this._activeQuestions[track].stage) > -1);
+  }
+  getRevealingAnswers(track = 'all') {
+    return this._activeQuestions[track] && this._activeQuestions[track].stage === 'revealingAnswers';
+  }
+  getShowingLiveResults(track = 'all') {
+    return this._activeQuestions[track] && this._activeQuestions[track].stage === 'showingLiveResults';
   }
   get showingLeaderboard() {
     return this._showingLeaderboard;
   }
-  get showingLiveResults() {
-    return this._showingLiveResults;
-  }
   setQuestion(question) {
-    this._activeQuestion = question;
-    this._acceptingAnswers = true;
-    this._revealingAnswers = false;
-    this._showingLiveResults = false;
-    this._cachedUserAnswers = {};
-    this.showingVideo = '';
-  }
-  showLiveResults() {
-    this._showingLiveResults = true;
-    this.showingVideo = '';
-  }
-  cacheAnswers(userId, answers) {
-    this._cachedUserAnswers[userId] = answers;
-  }
-  getAverages() {
-    let total = 0;
-    const occurrences = Array(this._activeQuestion.answers.length).fill(0);
-
-    for (const userId of Object.keys(this._cachedUserAnswers)) {
-      total++;
-      const choices = this._cachedUserAnswers[userId];
-      for (const choice of choices) {
-        occurrences[choice]++;
-      }
+    if (!this._activeQuestions[question.track]) {
+      this._activeQuestions[question.track] = {};
     }
+    this._activeQuestions[question.track].question = question;
+    this._activeQuestions[question.track].stage = 'acceptingAnswers';
+    this._cachedUserAnswers[question.track] = {};
+  }
+  showLiveResults(track = 'all') {
+    if (this._activeQuestions[track]) {
+      this._activeQuestions[track].stage = 'showingLiveResults';
+    }
+  }
+  cacheAnswers(userId, answers, track = 'all') {
+    if (!this._cachedUserAnswers[track][userId]) {
+      this._cachedUserAnswers[track][userId] = {};
+    }
+    this._cachedUserAnswers[track][userId] = answers;
+  }
+  getAverages(track = 'all') {
+    if (!!this._activeQuestions[track] && !!this._activeQuestions[track].question) {
+      let total = 0;
+      const occurrences = Array(this._activeQuestions[track].question.answers.length).fill(0);
 
-    return occurrences.map(n => n/total);
+      for (const userId of Object.keys(this._cachedUserAnswers[track])) {
+        total++;
+        const choices = this._cachedUserAnswers[track][userId];
+        for (const choice of choices) {
+          occurrences[choice]++;
+        }
+      }
+
+      return occurrences.map((n) => n / total);
+    }
+    return null;
   }
-  closeForAnswers() {
-    if (!this._activeQuestion) throw Error("No active question");
-    this._acceptingAnswers = false;
-    this._revealingAnswers = false;
-    this._showingLiveResults = true;
+  closeForAnswers(track = 'all') {
+    if (!this._activeQuestions || !this._activeQuestions[track]) {
+      throw Error('No active question');
+    }
+    this._activeQuestions[track].stage = 'showingLiveResultsAll';
     this.showingVideo = '';
   }
-  revealAnswers() {
-    if (!this._activeQuestion) throw Error("No active question");
-    this._acceptingAnswers = false;
-    this._revealingAnswers = true;
-    this._showingLiveResults = true;
-    this.showingVideo = '';
+  revealAnswers(track = 'all') {
+    if (!this._activeQuestions || !this._activeQuestions[track]) {
+      throw Error('No active question');
+    }
+    this._activeQuestions[track].stage = 'revealingAnswers';
   }
-  unsetQuestion() {
-    this._activeQuestion = null;
-    this._acceptingAnswers = false;
-    this._revealingAnswers = false;
-    this._showingLiveResults = false;
+  unsetQuestion(track = 'all') {
+    this._activeQuestions[track] = null;
   }
   showLeaderboard() {
     this._showingLeaderboard = true;
@@ -125,31 +135,52 @@ export class Quiz {
   hideLeaderboard() {
     this._showingLeaderboard = false;
   }
-  getState() {
-    return {
-      question: this._activeQuestion && {
-        id: this._activeQuestion._id,
-        title: this._activeQuestion.title,
-        text: this._activeQuestion.text,
-        code: this._activeQuestion.code,
-        codeType: this._activeQuestion.codeType,
-        multiple: this._activeQuestion.multiple,
-        scored: this._activeQuestion.scored,
-        // Don't want to send which answers are correct all the time,
-        // see `correctAnswers` below
-        answers: this._activeQuestion.answers.map(answer => ({text: answer.text}))
-      },
-      showEndScreen: this.showingEndScreen,
-      showLiveResults: this._showingLiveResults,
-      questionClosed: !this._acceptingAnswers,
-      // array of indexes for the correct answers
-      correctAnswers: this._revealingAnswers &&
-        this._activeQuestion.answers.reduce((arr, answer, i) => {
-          if (answer.correct) {
-            arr.push(i);
-          }
-          return arr;
-        }, [])
+
+  getUsersAnswers(answers) {
+    let answersSubmitted = getDefaultTracksObject([], [], []);
+    for (let i = 0; i < tracks.length; i++) {
+      let track = tracks[i];
+      let userAnswers = {};
+      if (!!this._activeQuestions[track] && !!this._activeQuestions[track].question) {
+        userAnswers[track] = answers.find((a) => a.questionId.equals(this._activeQuestions[track].question._id)) || [];
+        if (!!userAnswers[track] && !!userAnswers[track].choices) {
+          answersSubmitted[track] = this._activeQuestions[track].question.answers.map((_, k) => userAnswers[track].choices.includes(k));
+        }
+      }
     }
+    return answersSubmitted;
+  }
+  getState() {
+    const questions = tracks.map((track) => this._activeQuestions[track] && this._activeQuestions[track].question && {
+      id: this._activeQuestions[track].question._id,
+      title: this._activeQuestions[track].question.title,
+      text: this._activeQuestions[track].question.text,
+      code: this._activeQuestions[track].question.code,
+      codeType: this._activeQuestions[track].question.codeType,
+      multiple: this._activeQuestions[track].question.multiple,
+      scored: this._activeQuestions[track].question.scored,
+      track: this._activeQuestions[track].question.track,
+      // Don't want to send which answers are correct all the time,
+      // see `correctAnswers` below
+      answers: this._activeQuestions[track].question.answers.map((answer) => ({ text: answer.text })),
+      questionClosed: ['showingLiveResultsAll', 'revealingAnswers'].indexOf(this._activeQuestions[track].stage) > -1,
+      showLiveResults: ['showingLiveResults', 'showingLiveResultsAll', 'revealingAnswers'].indexOf(this._activeQuestions[track].stage) > -1
+
+    });
+    const correctAnswers = tracks.map((track) => this._activeQuestions[track] && this._activeQuestions[track].question && this._activeQuestions[track].stage === 'revealingAnswers' &&
+      this._activeQuestions[track].question.answers.reduce((arr, answer, i) => {
+        if (answer.correct) {
+          arr.push(i);
+        }
+        return arr;
+      }, [])
+    );
+
+    return {
+      activeQuestions: getDefaultTracksObject(...questions),
+      showingSplitTracks: this.showingSplitTracks,
+      // array of indexes for the correct answers
+      correctAnswers: getDefaultTracksObject(...correctAnswers)
+    };
   }
 }

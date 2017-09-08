@@ -19,11 +19,11 @@ import BoundComponent from './bound-component';
 import {Login} from './user';
 
 export default class Intro extends BoundComponent {
-  render({naiveLoginAllowed}) {
+  render({ naiveLoginAllowed }) {
     return (
       <div class="intro">
-        <img class="intro__icon" width="104" height="104" src="/static/images/icon@192.png" alt="The Big Web Quiz!" />
-        <p>Welcome to the Big Web Quiz!</p>
+        <img class="intro__icon" width="250" src="/static/images/logo.svg" alt="CSS-Minsk-JS" />
+        <p>Welcome to The Big Web Quiz. CSS-Minsk-JS Edition!</p>
         <Login naiveLoginAllowed={naiveLoginAllowed}/>
       </div>
     );
