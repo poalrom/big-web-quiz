@@ -44,11 +44,11 @@ function onBarSwitchTime(playTime, loopStart, loopBarLength) {
 }
 
 const safetyOffset = 0.25;
-const loop1Buffer = loadSoundAsAudioBuffer('/static/audio/loop1.mp4');
+const loop1Buffer = loadSoundAsAudioBuffer('/static/audio/loop1.ogg');
 const loop1BarLength = (60 / 110 /*BPM*/) * 4;
-const loop2Buffer = loadSoundAsAudioBuffer('/static/audio/loop2.mp4');
+const loop2Buffer = loadSoundAsAudioBuffer('/static/audio/loop2.ogg');
 const loop2BarLength = (60 / 123 /*BPM*/) * 4;
-const stabBuffer = loadSoundAsAudioBuffer('/static/audio/stab.mp4');
+const stabBuffer = loadSoundAsAudioBuffer('/static/audio/stab.ogg');
 
 export default class Audio extends BoundComponent {
   constructor(props) {
