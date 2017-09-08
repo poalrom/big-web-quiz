@@ -35,7 +35,7 @@ export default class QuestionClosed extends BoundComponent {
           <div class="question-closed__sides">
             <div class="question-closed__front">
               <div class="question-closed__front-inner">
-              { presentation ? 'Question closed' : 'Waiting for answer' }</div>
+              { presentation ? 'Question closed' : 'Waiting for results' }</div>
             </div>
             <div class="question-closed__back"></div>
           </div>

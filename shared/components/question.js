@@ -135,7 +135,7 @@ export default class Question extends BoundComponent {
           </div>
         }
         <form
-          class={(closed || showLiveResults) && (!correctAnswers) ? 'question__form question__form--closed' : 'question__form'}
+          class={(closed || showLiveResults) && (!correctAnswers[track]) ? 'question__form question__form--closed' : 'question__form'}
           onSubmit={this.onSubmit}
           action={this.formAction}
           method="POST"
@@ -192,7 +192,7 @@ export default class Question extends BoundComponent {
           </div>
         </form>
         { !presentation &&
-          <QuestionClosed presentation={presentation} state={closed && (!correctAnswers)}/>
+          <QuestionClosed presentation={presentation} state={closed && (!correctAnswers[track])}/>
         }
 
       </section>
