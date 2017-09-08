@@ -104,7 +104,7 @@ export default class App extends BoundComponent {
       throw err;
     }
   }
-  render({server}, {user, activeQuestions, questionClosed, correctAnswers, naiveLoginAllowed, showEndScreen, showingSplitTracks}) {
+  render({server}, {user, activeQuestions, correctAnswers, naiveLoginAllowed, showEndScreen, showingSplitTracks}) {
     const userTrack = showingSplitTracks ? user.track : 'all';
     const question = activeQuestions[userTrack];
     // Question: OPEN

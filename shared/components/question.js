@@ -114,7 +114,7 @@ export default class Question extends BoundComponent {
   }) {
     const codeEl = code && <Code code={code} codeType={codeType}></Code>;
     const answersToCheck = closed ? answersSubmitted[track] : answersChecked[track];
-    const hasAnswer = answersChecked[track].indexOf(true) > -1;
+    const hasAnswer = !!answersChecked && !!answersChecked[track] && answersChecked[track].indexOf(true) > -1;
 
     return (
       <section class={
@@ -156,7 +156,7 @@ export default class Question extends BoundComponent {
                     type={multiple ? 'checkbox' : 'radio'}
                     name="answer"
                     value={i}
-                    checked={answersToCheck[i]}
+                    checked={(answersToCheck || [])[i]}
                     disabled={closed}
                     onChange={this.onChoiceChange}
                   />

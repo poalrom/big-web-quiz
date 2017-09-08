@@ -166,7 +166,9 @@ export class Quiz {
       // Don't want to send which answers are correct all the time,
       // see `correctAnswers` below
       answers: this._activeQuestions[track].question.answers.map(answer => ({text: answer.text})),
-      questionClosed: ['showingLiveResultsAll', 'revealingAnswers'].indexOf(this._activeQuestions[track].stage) > -1
+      questionClosed: ['showingLiveResultsAll', 'revealingAnswers'].indexOf(this._activeQuestions[track].stage) > -1,
+      showLiveResults: ['showingLiveResults', 'showingLiveResultsAll', 'revealingAnswers'].indexOf(this._activeQuestions[track].stage) > -1
+
     });
     const correctAnswers = tracks.map(track=> this._activeQuestions[track] && this._activeQuestions[track].question && this._activeQuestions[track].stage == 'revealingAnswers' &&
         this._activeQuestions[track].question.answers.reduce((arr, answer, i) => {

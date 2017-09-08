@@ -124,7 +124,11 @@ export async function setQuestionJson(req, res) {
 
     quiz.setQuestion(question);
     presentationListeners.broadcast(
-      Object.assign({averages: undefined}, quiz.getState())
+      Object.assign({averages: {
+        all: quiz.getAverages(),
+        css: quiz.getAverages('css'),
+        ja: quiz.getAverages('js')
+      }}, quiz.getState())
     );
     longPollers.broadcast(quiz.getState());
 
