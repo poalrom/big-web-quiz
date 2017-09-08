@@ -119,7 +119,8 @@ export function simpleUserObject(user) {
     avatarUrl: user.avatarUrl,
     optIntoLeaderboard: user.optIntoLeaderboard,
     score: user.score,
-    track: user.track
+    track: user.track,
+    answers: quiz.getUsersAnswers(user.answers)
   }
 }
 
@@ -262,7 +263,12 @@ export function deleteUsersJson(req, res) {
 
 export async function questionAnswerJson(req, res) {
   try {
-    if (!quiz.activeQuestions || (!quiz.activeQuestions['all'].question && !quiz.activeQuestions['css'].question && !quiz.activeQuestions['js'].question)) {
+    let counter = 0;
+    ['all', 'css', 'js'].forEach(track => {
+      if(!quiz.activeQuestions || !quiz.activeQuestions[track] || !quiz.activeQuestions[track].question) counter++;
+    })
+
+    if(counter == ['all', 'css', 'js'].length){
       res.json({err: "No question being asked"});
       return;
     }

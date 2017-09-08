@@ -64,24 +64,12 @@ export default class App extends BoundComponent {
         requestAnimationFrame(() => {
           const longPoll = new LongPoll(props.initialState.lastMessageTime);
           longPoll.on('message', msg => {
-            if (msg.correctAnswers[this.state.user.track]) { // update the score
-              // TODO: change view while this is updating?
+              // Update user data to check answers and results
               fetch('/me.json', {
                 credentials: 'include'
               }).then(r => r.json()).then(data => {
-                this.setState({user: data.user});
+                this.setState(Object.assign({},msg, {user: data.user}));
               });
-            }
-            // Is question changing?
-            ['all', 'css', 'js'].forEach((track)=> {
-              if (!(this.state.activeQuestions && this.state.activeQuestions[track] && this.state.activeQuestions[track].question && msg.activeQuestions && msg.activeQuestions[track] && msg.activeQuestions[track].question && this.state.activeQuestions[track].question.id == msg.activeQuestions[track].question.id)) {
-                if(!msg.answersSubmitted) msg.answersSubmitted = {};
-                  // Reset submitted questions
-                  msg.answersSubmitted[track] = [];
-                }
-            });
-
-            this.setState(msg);
           });
         })
       });
@@ -116,7 +104,7 @@ export default class App extends BoundComponent {
       throw err;
     }
   }
-  render({server}, {user, activeQuestions, questionClosed, correctAnswers, answersSubmitted, naiveLoginAllowed, showEndScreen, showingSplitTracks}) {
+  render({server}, {user, activeQuestions, questionClosed, correctAnswers, naiveLoginAllowed, showEndScreen, showingSplitTracks}) {
     const userTrack = showingSplitTracks ? user.track : 'all';
     const question = activeQuestions[userTrack];
     // Question: OPEN
@@ -160,7 +148,7 @@ export default class App extends BoundComponent {
                     codeType={question.codeType}
                     closed={question.questionClosed}
                     correctAnswers={correctAnswers}
-                    answersSubmitted={answersSubmitted}
+                    answersSubmitted={user.answers}
                     track={question.track}
                   />
                   :

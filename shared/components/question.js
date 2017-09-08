@@ -113,7 +113,8 @@ export default class Question extends BoundComponent {
     submittedAnswersThisSession
   }) {
     const codeEl = code && <Code code={code} codeType={codeType}></Code>;
-    const answersToCheck = closed ? answersSubmitted: answersChecked;
+    const answersToCheck = closed ? answersSubmitted[track] : answersChecked[track];
+    const hasAnswer = answersChecked[track].indexOf(true) > -1;
 
     return (
       <section class={
@@ -155,7 +156,7 @@ export default class Question extends BoundComponent {
                     type={multiple ? 'checkbox' : 'radio'}
                     name="answer"
                     value={i}
-                    checked={answersToCheck[track][i]}
+                    checked={answersToCheck[i]}
                     disabled={closed}
                     onChange={this.onChoiceChange}
                   />
@@ -179,7 +180,7 @@ export default class Question extends BoundComponent {
                         'question__submitted-answer question__submitted-answer--success' :
                         'question__submitted-answer'
                     }>Answer submitted</div>
-                    <button disabled={closed || spinnerState || (answersChecked[track].length === 0 && !multiple)} class={
+                    <button disabled={closed || spinnerState || !hasAnswer} class={
                       spinnerState ?
                         'question__submit question__submit--pending' :
                         'question__submit'

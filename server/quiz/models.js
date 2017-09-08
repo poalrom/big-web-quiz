@@ -136,6 +136,22 @@ export class Quiz {
   hideLeaderboard() {
     this._showingLeaderboard = false;
   }
+
+  getUsersAnswers(answers){
+    const tracks = ['all', 'css', 'js'];
+    let answersSubmitted = { all:[], css: [], js: []};
+    for(let i=0; i< tracks.length; i++ ){
+      let track = tracks[i];
+      let userAnswers = {};
+      if (!!this._activeQuestions[track] && !!this._activeQuestions[track].question){
+        userAnswers[track] = answers.find(a => a.questionId.equals(this._activeQuestions[track].question._id)) || [];
+        if (!!userAnswers[track] && !!userAnswers[track].choices) {
+          answersSubmitted[track] = this._activeQuestions[track].question.answers.map((_, i) => userAnswers[track].choices.includes(i));
+        }
+      }
+    }
+    return answersSubmitted;
+  }
   getState() {
     const tracks = ['all', 'css', 'js'];
     const questions = tracks.map(track => this._activeQuestions[track] && this._activeQuestions[track].question && {

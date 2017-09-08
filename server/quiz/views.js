@@ -216,7 +216,6 @@ export function liveResultsQuestionJson(req, res) {
       res.status(404).json({err: "Question not found"});
       return;
     }
-    console.log(question);
 
     if (!quiz.activeQuestions[question.track] || !quiz.activeQuestions[question.track].question || !question.equals(quiz.activeQuestions[question.track].question)) {
       res.status(404).json({err: `This isn't the active ${question.track} question`});
