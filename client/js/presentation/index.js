@@ -183,7 +183,7 @@ class App extends BoundComponent {
                 questionClosed={question.questionClosed}
                 text={question.answers[i].text}
                 key={`avg-${question.id}-answer-${i}`}
-                targetValue={averages[i]} />
+                targetValue={averages[this.track][i]} />
             )}
           </div>
           : ''
