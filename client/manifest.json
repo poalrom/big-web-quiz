@@ -1,12 +1,12 @@
 {
-  "name": "Big Web Quiz",
+  "name": "Big Web Quiz. CSS-Minsk-JS Edition",
   "scope": "/",
   "icons": [{
     "src": "/static/images/icon@512.png",
     "sizes": "512x512"
   }],
-  "background_color": "#220065",
+  "background_color": "#fed91c",
   "display": "standalone",
   "start_url": "/",
-  "theme_color": "#22135E"
+  "theme_color": "#fed91c"
 }
