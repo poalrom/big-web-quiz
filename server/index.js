@@ -60,6 +60,12 @@ const router = new express.Router({
   strict: true
 });
 
+// Add logging for promises
+process.on('unhandledRejection', (reason, p) => {
+  // application specific logging, throwing an error, or other logic here
+  console.error('Unhandled Rejection at: Promise', p, 'reason:', reason);
+});
+
 // Middleware:
 router.use(
   '/static',
