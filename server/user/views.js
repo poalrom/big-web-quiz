@@ -327,7 +327,7 @@ export async function questionAnswerJson(req, res) {
       averages: {
         all: quiz.getAverages(),
         css: quiz.getAverages('css'),
-        ja: quiz.getAverages('js')
+        js: quiz.getAverages('js')
       }
     });
 
