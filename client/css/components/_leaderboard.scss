@@ -99,6 +99,31 @@ $table-delay: $gold-medal-delay + 1s;
     min-height: 50vh;
     padding-top: 100px;
     margin-bottom: 230px;
+    
+    animation-name: scaleTopWinners;
+    animation-duration: 1s;
+    animation-timing-function: cubic-bezier(0, 0, 0.3, 1);
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
+    animation-delay: 5s;
+
+    &_other {
+      font-size: 12px;
+      text-align: center;
+      animation-name: showOtherWinners;
+      animation-duration: 1s;
+      animation-timing-function: cubic-bezier(0, 0, 0.3, 1);
+      animation-iteration-count: 1;
+      animation-fill-mode: forwards;
+      animation-delay: 5s;
+      opacity: 0;
+      th, td {
+        padding: 0 10px;
+      }
+      img {
+        border: 2px solid $primary-color;
+      }
+    }
   }
 
   &__winner {
@@ -496,6 +521,29 @@ $table-delay: $gold-medal-delay + 1s;
 
   to {
     transform: translateY(-100%) translateY(-10px);
+    opacity: 1;
+  }
+}
+
+@keyframes scaleTopWinners {
+  from {
+    transform: scale(1);
+    height: 75vh;
+  }
+
+  to {
+    transform: scale(0.55);
+    height: 40vh;
+    margin-bottom: 0;
+  }
+}
+
+@keyframes showOtherWinners {
+  from {
+    opacity: 0;
+  }
+
+  to {
     opacity: 1;
   }
 }

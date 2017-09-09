@@ -150,6 +150,34 @@ class App extends BoundComponent {
               </div>
             )}
           </div>
+          <table class="leaderboard__winners_other">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>&nbsp;</th>
+                <th>Name</th>
+                <th>Score</th>
+              </tr>
+            </thead>
+            <tbody>
+              {leaderboard.map((player, index) =>
+                (index < 3 || index > 8) ? '' :
+                <tr>
+                  <td>{player.position}</td>
+                  <td>
+                    <img
+                      width="25"
+                      height="25"
+                      src={`${player.avatarUrl}?sz=25`}
+                      srcset={`${player.avatarUrl}?sz=50 2x, ${player.avatarUrl}?sz=75 3x`}
+                    />
+                  </td>
+                  <td>{player.name}</td>
+                  <td>{player.score}</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       );
     }
