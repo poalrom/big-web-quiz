@@ -21,7 +21,8 @@ export const ADMIN_IDS = [
   '106226344171608747626', // ALeksandra Shinkevich
   '101241719050029815932', // Pavel Lautsevich
   '107275858358244966388', // Anna Selezneva
-  '102588369478580002197' // James Akwuh
+  '102588369478580002197', // James Akwuh,
+  '110483125936065828120'  // Harry :)
 ];
 
 let allowNaiveLogin = false;
