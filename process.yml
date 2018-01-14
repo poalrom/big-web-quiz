@@ -1,0 +1,5 @@
+apps:
+  - script: 'npm'
+    args  : 'run serve'
+    env   :
+        PORT: 8408
