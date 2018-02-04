@@ -50,6 +50,8 @@ const userSchema = mongoose.Schema({
     choices: [Number]
   }],
   track: { type: String, default: 'css' }
+}, {
+  usePushEach: true
 });
 
 userSchema.index({ optIntoLeaderboard: 1, bannedFromLeaderboard: 1, score: -1 });

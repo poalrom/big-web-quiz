@@ -44,6 +44,8 @@ const questionSchema = mongoose.Schema({
     type: String,
     default: 'all'
   }
+}, {
+  usePushEach: true
 });
 
 export const Question = mongoose.model('Question', questionSchema);
