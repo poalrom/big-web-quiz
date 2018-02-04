@@ -340,6 +340,7 @@ export async function questionAnswerJson(req, res) {
     await req.user.save();
     res.json({});
   } catch (e) {
+    console.error(e);
     res.status(500).json({ err: 'Unknown error' });
   }
 }
