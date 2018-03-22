@@ -24,7 +24,7 @@ export const ADMIN_IDS = [
   '102588369478580002197', // James Akwuh,
   '110483125936065828120',  // Harry :)
   '103185938368672570019',
-  '102588369478580002197' // Nikita
+  '104130995300484666121' // Nikita
 ];
 
 let allowNaiveLogin = false;
