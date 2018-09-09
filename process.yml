@@ -1,5 +1,6 @@
 apps:
-  - script: 'npm'
+  - name: 'quiz'
+    script: 'npm'
     args  : 'run serve'
     env   :
         PORT: 8408
