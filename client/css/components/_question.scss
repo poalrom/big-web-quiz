@@ -166,7 +166,7 @@
       opacity: 1;
     }
 
-    input:checked ~ &-label-text {
+    input:checked ~ &-label .question__answer-label-text {
       color: black;
     }
 
