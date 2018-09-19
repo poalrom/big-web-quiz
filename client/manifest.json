@@ -2,8 +2,8 @@
   "name": "Big Web Quiz. CSS-Minsk-JS Edition",
   "scope": "/",
   "icons": [{
-    "src": "/static/images/favicon.ico",
-    "sizes": "48x48"
+    "src": "/static/images/apple-touch-icon.png",
+    "sizes": "180x180"
   }],
   "background_color": "#fed91c",
   "display": "standalone",
