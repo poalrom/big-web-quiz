@@ -184,8 +184,9 @@ class App extends BoundComponent {
 
     if (!activeQuestions[this.track]) {
       return (
-        <div>
-          <img src={`/static/images/title-${this.track}.png`} class="opening-media opening-media--show"/>
+        <div class="opening-media">
+          <img class="opening-media__logo" src="/static/images/logo.svg" alt="CSS-Minsk-JS"/>
+          <div class="opening-media__title">quiz.css-minsk-js.by</div>
           <div class={`blackout ${showBlackout ? 'blackout--show' : ''}`}/>
         </div>
       );
