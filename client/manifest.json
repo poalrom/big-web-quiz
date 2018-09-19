@@ -3,7 +3,7 @@
   "scope": "/",
   "icons": [{
     "src": "/static/images/favicon.ico",
-    "sizes": "512x512"
+    "sizes": "48x48"
   }],
   "background_color": "#fed91c",
   "display": "standalone",

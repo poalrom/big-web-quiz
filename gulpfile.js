@@ -58,7 +58,7 @@ const paths = {
     dest: 'build/static/css'
   },
   copy: {
-    src: 'client/**/*.{svg,png,jpg,wav,mp3,mp4,ogg,json}',
+    src: 'client/**/*.{svg,png,ico,jpg,wav,mp3,mp4,ogg,json}',
     dest: 'build/static'
   },
   postProcess: {
