@@ -17,7 +17,7 @@
 import { h } from 'preact';
 import BoundComponent from '../../../../shared/components/bound-component';
 
-let context = new AudioContext();
+let context;
 
 document.body.addEventListener('click', function() {
   context = new AudioContext();
