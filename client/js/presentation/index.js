@@ -231,5 +231,7 @@ class App extends BoundComponent {
   }
 }
 
-const main = document.querySelector('.main-content');
-render(<App />, main);
+document.body.addEventListener('click', function() {
+  const main = document.querySelector('.main-content');
+  render(<App />, main);
+}, { once: true });

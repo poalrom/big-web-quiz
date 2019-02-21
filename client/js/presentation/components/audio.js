@@ -17,7 +17,12 @@
 import { h } from 'preact';
 import BoundComponent from '../../../../shared/components/bound-component';
 
-const context = new AudioContext();
+let context = new AudioContext();
+
+document.body.addEventListener('click', function() {
+  context = new AudioContext();
+}, { once: true });
+
 
 function wait(ms) {
   return new Promise(r => setTimeout(r, ms));
