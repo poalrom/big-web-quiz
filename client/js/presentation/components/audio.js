@@ -17,12 +17,23 @@
 import { h } from 'preact';
 import BoundComponent from '../../../../shared/components/bound-component';
 
-let context;
+let context,
+  safetyOffset,
+  loop1Buffer,
+  loop1BarLength,
+  loop2Buffer,
+  loop2BarLength,
+  stabBuffer;
 
 document.body.addEventListener('click', function() {
   context = new AudioContext();
+  safetyOffset = 0.25;
+  loop1Buffer = loadSoundAsAudioBuffer('/static/audio/loop1.ogg');
+  loop1BarLength = (60 / 110 /*BPM*/) * 4;
+  loop2Buffer = loadSoundAsAudioBuffer('/static/audio/loop2.ogg');
+  loop2BarLength = (60 / 123 /*BPM*/) * 4;
+  stabBuffer = loadSoundAsAudioBuffer('/static/audio/stab.ogg');
 }, { once: true });
-
 
 function wait(ms) {
   return new Promise(r => setTimeout(r, ms));
@@ -47,13 +58,6 @@ function onBarSwitchTime(playTime, loopStart, loopBarLength) {
 
   return untilSwitch + playTime;
 }
-
-const safetyOffset = 0.25;
-const loop1Buffer = loadSoundAsAudioBuffer('/static/audio/loop1.ogg');
-const loop1BarLength = (60 / 110 /*BPM*/) * 4;
-const loop2Buffer = loadSoundAsAudioBuffer('/static/audio/loop2.ogg');
-const loop2BarLength = (60 / 123 /*BPM*/) * 4;
-const stabBuffer = loadSoundAsAudioBuffer('/static/audio/stab.ogg');
 
 export default class Audio extends BoundComponent {
   constructor(props) {
