@@ -1,0 +1,10 @@
+version: '2'
+services:
+  main:
+    build: .
+    volumes:
+    - ".:/var/www/site"
+    ports:
+    - "1414:3000"
+    stdin_open: true
+    tty: true

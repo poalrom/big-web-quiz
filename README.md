@@ -1,4 +1,4 @@
-The repo is a [fork](https://github.com/CSS-Minsk-JS/big-web-quiz) from [Big Web Quiz](https://github.com/jakearchibald/big-web-quiz)
+The repo is a [fork](https://github.com/poalrom/big-web-quiz) from [Big Web Quiz](https://github.com/jakearchibald/big-web-quiz)
 
 # Development && Deploy
 

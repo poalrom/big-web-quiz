@@ -8,7 +8,8 @@
     "serve": "gulp serve",
     "heroku-postbuild": "NODE_ENV=production gulp build",
     "deploy": "git fetch live && git checkout -B live live/master && git merge -m 'Merging master' master && git push live live:master && git checkout master && npm run get-secrets",
-    "get-secrets": "git fetch live && rm -f $(git ls-tree -r --name-only live/secrets) && git cherry-pick live/secrets --no-commit && git reset"
+    "get-secrets": "git fetch live && rm -f $(git ls-tree -r --name-only live/secrets) && git cherry-pick live/secrets --no-commit && git reset",
+    "dev": "docker exec -it big-web-quiz_main_1 /bin/bash"
   },
   "author": "",
   "license": "ISC",
