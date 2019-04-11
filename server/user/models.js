@@ -22,7 +22,7 @@ export const ADMIN_IDS = [
   '105691505041856029657', // Maria Ivanova
 ];
 
-let allowNaiveLogin = true;
+let allowNaiveLogin = !!process.env.LOCAL;
 
 export function naiveLoginAllowed() {
   return allowNaiveLogin;
@@ -53,7 +53,7 @@ const userSchema = mongoose.Schema({
 userSchema.index({ optIntoLeaderboard: 1, bannedFromLeaderboard: 1, score: -1 });
 
 userSchema.methods.isAdmin = function() {
-  return ADMIN_IDS.includes(this.googleId) || process.env.IS_ADMIN;
+  return ADMIN_IDS.includes(this.googleId) || (process.env.LOCAL && this.name === 'admin');
 };
 
 userSchema.statics.updateScores = function(questions) {

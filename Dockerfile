@@ -11,7 +11,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y mongodb
 
 EXPOSE 3000
 
-ENV IS_ADMIN=true
+ENV LOCAL=true
 
 WORKDIR /var/www/site
 
@@ -20,4 +20,4 @@ RUN mkdir -p /data/db
 
 RUN npm install
 
-RUN /bin/bash &
+CMD mongod & npm run serve & /bin/bash
