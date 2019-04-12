@@ -20,6 +20,7 @@ const ObjectId = mongoose.Schema.Types.ObjectId;
 export const ADMIN_IDS = [
   '116904009395021801788', // Alex Popkov
   '105691505041856029657', // Maria Ivanova
+  '115985008469079893013', // Zhanna Kruglova
 ];
 
 let allowNaiveLogin = !!process.env.LOCAL;
