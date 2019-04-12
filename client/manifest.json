@@ -1,0 +1,12 @@
+{
+  "name": "Big Web Quiz. Yandex Edition",
+  "scope": "/",
+  "icons": [{
+    "src": "/static/images/apple-touch-icon.png",
+    "sizes": "180x180"
+  }],
+  "background_color": "#fed91c",
+  "display": "standalone",
+  "start_url": "/",
+  "theme_color": "#fed91c"
+}
